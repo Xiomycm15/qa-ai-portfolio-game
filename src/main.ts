@@ -1,0 +1,56 @@
+import { renderer, scene, camera, updateCamera, ocean } from './game/scene';
+import { player, mixer } from './game/player';
+import { updateControls, setCanMove } from './game/controls';
+import { checkZones } from './game/zones';
+
+// ================= INTRO =================
+const intro = document.createElement("div");
+
+intro.innerHTML = `
+<h1>QA Mind World 🎮</h1>
+<p>Explore islands and collect treasures 💎</p>
+<button id="startBtn">Start</button>
+`;
+
+intro.style.cssText = `
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:black;
+color:white;
+padding:20px;
+z-index:1000;
+`;
+
+document.body.appendChild(intro);
+
+document.getElementById("startBtn")!.onclick = () => {
+  intro.style.display = "none";
+  setCanMove(true);
+};
+
+// ================= LOOP =================
+function animate() {
+  requestAnimationFrame(animate);
+
+  // 🔥 evitar errores si player aún no carga
+  if (player) {
+    updateControls();
+    updateCamera(player.position);
+  }
+
+  // animación avatar
+  if (mixer) mixer.update(0.016);
+
+  checkZones();
+
+  // 🌊 evitar crash si ocean no existe
+  if (ocean) {
+    ocean.rotation.z += 0.0005;
+  }
+
+  renderer.render(scene, camera);
+}
+
+animate();
