@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { scene } from './scene';
 import { player } from './player';
+import { showPanel, hidePanel } from "../ui/panel";
+
 
 // ======================
 // 🎮 STATE
@@ -12,7 +14,10 @@ const total = 6;
 let currentZone: string | null = null;
 
 // Experience
-let expStep: "intro" | "investigation" | "answer" = "intro";
+type ExpStep = "intro" | "investigation" | "answer";
+
+let expStep: ExpStep = "intro";
+
 let attempts = 0;
 
 // ======================
@@ -30,9 +35,6 @@ z-index:1000;
 document.body.appendChild(scoreUI);
 
 
-function hidePanel() {
-  panel.style.display = "none";
-}
 
 function updateScoreUI() {
   scoreUI.innerText = `💎 ${collected.size}/${total} | ⭐ ${score}`;
@@ -101,63 +103,31 @@ const zones = [
   { mesh: createIsland(0x00ffff, 0, 8), title: "Experience" }
 ];
 
-// ======================
-// 🖥️ PANEL
-// ======================
-const panel = document.createElement("div");
-panel.style.cssText = `
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-background:black;
-color:white;
-padding:20px;
-width:380px;
-display:none;
-z-index:999;
-`;
-document.body.appendChild(panel);
 
 
 // ======================
 // 🎮 IA PANEL PRO
 // ======================
-
 function renderIAPanel() {
-  if (!panel) return;
-
-  const p = panel;
-
-  p.style.display = "block";
-
-  p.innerHTML = `
+  showPanel(`
     <h2>🤖 AI Debug Assistant</h2>
     <button id="analyzeBtn">Analyze</button>
-  `;
+  `);
 
   const btn = document.getElementById("analyzeBtn");
 
   if (btn) {
     btn.addEventListener("click", async () => {
-      p.innerHTML = "<p>🤖 AI is analyzing...</p>";
+      showPanel("<p>🤖 AI is analyzing...</p>");
 
-      const res = await fetch("http://localhost:3000/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          bug: "TypeError: Cannot read properties of undefined"
-        })
-      });
+const result = await analyzeWithAI(
+  "TypeError: Cannot read properties of undefined"
+);
 
-      const data = await res.json();
-
-      p.innerHTML = `
-        <h2>🧠 AI Result</h2>
-        <p>${data.result}</p>
-      `;
+showPanel(`
+  <h2>🧠 AI Result</h2>
+  <p>${result}</p>
+`);
     });
   }
 }
@@ -169,7 +139,7 @@ function renderExperiencePanel() {
 
   // INTRO
   if (expStep === "intro") {
-    panel.innerHTML = `
+    showPanel(`
       <h2>💼 Experience Island</h2>
 
       <p>I am a QA Engineer with experience working in real production environments.</p>
@@ -182,126 +152,213 @@ function renderExperiencePanel() {
       <p>🎯 In this mission, you will experience how I investigate and solve real production issues.</p>
 
       <button id="start">Start Mission 🚀</button>
-    `;
+    `);
 
-    document.getElementById("start")!.onclick = () => {
-      expStep = "investigation";
-      renderExperiencePanel();
+    const btn = document.getElementById("start");
+
+    if (btn) {
+      btn.onclick = () => {
+        expStep = "investigation";
+        renderExperiencePanel();
+      };
+    }
+  }
+}
+
+  // INVESTIGATION
+  if (expStep === "investigation"as ExpStep) {
+
+  showPanel(`
+    <h2>🚨 Production Incident</h2>
+
+    <p><strong>Scenario:</strong> Users cannot complete checkout.</p>
+
+    <p>This is a real-world QA situation where I investigate multiple system layers.</p>
+
+    <button id="logs">📊 Analyze system logs</button>
+    <button id="api">🌐 Validate backend API</button>
+    <button id="auto">🧪 Execute automated tests</button>
+    <button id="db">🗄️ Validate database data</button>
+
+    <br/><br/>
+    <button id="answer">Submit root cause</button>
+  `);
+
+  const logsBtn = document.getElementById("logs");
+  const apiBtn = document.getElementById("api");
+  const autoBtn = document.getElementById("auto");
+  const dbBtn = document.getElementById("db");
+  const answerBtn = document.getElementById("answer");
+
+  if (logsBtn) {
+    logsBtn.onclick = () => {
+      showPanel("<p>📊 Logs show payment service timeout...</p>");
     };
   }
 
-  // INVESTIGATION
-  else if (expStep === "investigation") {
-    panel.innerHTML = `
-      <h2>🚨 Production Incident</h2>
-
-      <p><strong>Scenario:</strong> Users cannot complete checkout.</p>
-
-      <p>This is a real-world QA situation where I investigate multiple system layers.</p>
-
-      <button id="logs">📊 Analyze system logs</button>
-      <button id="api">🌐 Validate backend API</button>
-      <button id="auto">🧪 Execute automated tests</button>
-      <button id="db">🗄️ Validate database data</button>
-
-      <br/><br/>
-      <button id="answer">Submit root cause</button>
-    `;
-
-    // LOGS
-    document.getElementById("logs")!.onclick = () => {
-      panel.innerHTML = `
-        <h3>📊 Logs Analysis</h3>
-        <p>Error: Payment timeout</p>
-        <p>💼 I use monitoring tools to detect production issues.</p>
-        <button id="back">⬅ Back</button>
-      `;
-      document.getElementById("back")!.onclick = () => renderExperiencePanel();
+  if (apiBtn) {
+    apiBtn.onclick = () => {
+      showPanel("<p>🌐 API response: 500 Internal Server Error</p>");
     };
+  }
 
-    // API
-    document.getElementById("api")!.onclick = () => {
-      panel.innerHTML = `
-        <h3>🌐 API Validation</h3>
-        <p>Status: 500</p>
-        <p>💼 I validate backend services using Postman.</p>
-        <button id="back">⬅ Back</button>
-      `;
-      document.getElementById("back")!.onclick = () => renderExperiencePanel();
+  if (autoBtn) {
+    autoBtn.onclick = () => {
+      showPanel("<p>🧪 Automated tests failing on checkout flow</p>");
     };
+  }
 
-    // AUTO
-    document.getElementById("auto")!.onclick = () => {
-      panel.innerHTML = `
-        <h3>🧪 Automation</h3>
-        <p>Test failed</p>
-        <p>💼 I build automation with Cypress & Playwright.</p>
-        <button id="back">⬅ Back</button>
-      `;
-      document.getElementById("back")!.onclick = () => renderExperiencePanel();
+  if (dbBtn) {
+    dbBtn.onclick = () => {
+      showPanel("<p>🗄️ Database connection stable, no issues found</p>");
     };
+  }
 
-    // DB
-    document.getElementById("db")!.onclick = () => {
-      panel.innerHTML = `
-        <h3>🗄️ Database</h3>
-        <p>Failed transactions</p>
-        <p>💼 I use SQL to validate data.</p>
-        <button id="back">⬅ Back</button>
-      `;
-      document.getElementById("back")!.onclick = () => renderExperiencePanel();
-    };
-
-    document.getElementById("answer")!.onclick = () => {
+  if (answerBtn) {
+    answerBtn.onclick = () => {
       expStep = "answer";
       renderExperiencePanel();
     };
   }
+}
 
-  // ANSWER
-  else if (expStep === "answer") {
-    panel.innerHTML = `
-      <h2>🧠 Root Cause</h2>
+    // LOGS
+const logsBtn = document.getElementById("logs");
 
-      <p>What is causing the issue?</p>
+if (logsBtn) {
+  logsBtn.onclick = () => {
+    showPanel(`
+      <h3>📊 Logs Analysis</h3>
+      <p>Error: Payment timeout</p>
+      <p>💼 I use monitoring tools to detect production issues.</p>
+      <button id="back">⬅ Back</button>
+    `);
 
-      <button id="ui">UI issue</button>
-      <button id="apiCorrect">API failure</button>
-      <button id="dbWrong">Database</button>
-    `;
+    const backBtn = document.getElementById("back");
 
-    // WRONG ANSWERS (HINTS)
-    const showWrongAnswer = () => {
-      attempts++;
+    if (backBtn) {
+      backBtn.onclick = () => renderExperiencePanel();
+    }
+  };
+}
 
-      let hint = "";
+    // API
+   const apiBtn = document.getElementById("api");
 
-      if (attempts === 1) {
-        hint = "💡 Hint: The issue is not in the UI layer.";
-      } else if (attempts === 2) {
-        hint = "💡 Hint: Check the API response status.";
-      } else {
-        hint = "✔ The correct answer is API failure.";
-      }
+if (apiBtn) {
+  apiBtn.onclick = () => {
+    showPanel(`
+      <h3>🌐 API Validation</h3>
+      <p>Status: 500</p>
+      <p>💼 I validate backend services using Postman.</p>
+      <button id="back">⬅ Back</button>
+    `);
 
-      panel.innerHTML = `
-        <h2>❌ Not quite right</h2>
-        <p>${hint}</p>
-        <button id="retry">Try again</button>
-      `;
+    const backBtn = document.getElementById("back");
 
-      document.getElementById("retry")!.onclick = () => {
+    if (backBtn) {
+      backBtn.onclick = () => renderExperiencePanel();
+    }
+  };
+}
+
+    // AUTO
+const autoBtn = document.getElementById("auto");
+
+if (autoBtn) {
+  autoBtn.onclick = () => {
+    showPanel(`
+      <h3>🧪 Automation</h3>
+      <p>Test failed</p>
+      <p>💼 I build automation with Cypress & Playwright.</p>
+      <button id="back">⬅ Back</button>
+    `);
+
+    const backBtn = document.getElementById("back");
+
+    if (backBtn) {
+      backBtn.onclick = () => renderExperiencePanel();
+    }
+  };
+}
+
+    // DB
+const dbBtn = document.getElementById("db");
+const answerBtn = document.getElementById("answer");
+
+if (dbBtn) {
+  dbBtn.onclick = () => {
+    showPanel(`
+      <h3>🗄️ Database</h3>
+      <p>Failed transactions</p>
+      <p>💼 I use SQL to validate data.</p>
+      <button id="back">⬅ Back</button>
+    `);
+
+    const backBtn = document.getElementById("back");
+    if (backBtn) backBtn.onclick = () => renderExperiencePanel();
+  };
+}
+
+if (answerBtn) {
+  answerBtn.onclick = () => {
+    expStep = "answer";
+    renderExperiencePanel();
+  };
+}
+
+// ANSWER
+else if (expStep === "answer" as ExpStep) {
+  showPanel(`
+    <h2>🧠 Root Cause</h2>
+
+    <p>What is causing the issue?</p>
+
+    <button id="ui">UI issue</button>
+    <button id="apiCorrect">API failure</button>
+    <button id="dbWrong">Database</button>
+  `);
+
+  // WRONG ANSWERS (HINTS)
+  const showWrongAnswer = () => {
+    attempts++;
+
+    let hint = "";
+
+    if (attempts === 1) {
+      hint = "💡 Hint: The issue is not in the UI layer.";
+    } else if (attempts === 2) {
+      hint = "💡 Hint: Check the API response status.";
+    } else {
+      hint = "✔ The correct answer is API failure.";
+    }
+
+    showPanel(`
+      <h2>❌ Not quite right</h2>
+      <p>${hint}</p>
+      <button id="retry">Try again</button>
+    `);
+
+    const retryBtn = document.getElementById("retry");
+    if (retryBtn) {
+      retryBtn.onclick = () => {
         expStep = "answer";
         renderExperiencePanel();
       };
-    };
+    }
+  };
 
-    document.getElementById("ui")!.onclick = showWrongAnswer;
-    document.getElementById("dbWrong")!.onclick = showWrongAnswer;
+  const uiBtn = document.getElementById("ui");
+  const dbWrongBtn = document.getElementById("dbWrong");
+  const apiCorrectBtn = document.getElementById("apiCorrect");
 
-    // CORRECT ANSWER + REASONING
-    document.getElementById("apiCorrect")!.onclick = () => {
-      panel.innerHTML = `
+  if (uiBtn) uiBtn.onclick = showWrongAnswer;
+  if (dbWrongBtn) dbWrongBtn.onclick = showWrongAnswer;
+
+  // CORRECT ANSWER + REASONING
+  if (apiCorrectBtn) {
+    apiCorrectBtn.onclick = () => {
+      showPanel(`
         <h2>✔ Correct! API Failure</h2>
 
         <p><strong>Why this is correct:</strong></p>
@@ -323,13 +380,16 @@ function renderExperiencePanel() {
         </ul>
 
         <button id="restart">Restart Mission</button>
-      `;
+      `);
 
-      document.getElementById("restart")!.onclick = () => {
-        expStep = "intro";
-        attempts = 0;
-        renderExperiencePanel();
-      };
+      const restartBtn = document.getElementById("restart");
+      if (restartBtn) {
+        restartBtn.onclick = () => {
+          expStep = "intro";
+          attempts = 0;
+          renderExperiencePanel();
+        };
+      }
     };
   }
 }
@@ -376,21 +436,18 @@ export function checkZones() {
   }
 
   // 🎮 EXPERIENCE
-  if (foundZone === "Experience") {
-    renderExperiencePanel();
-    panel.style.display = "block";
-    return;
-  }
+if (foundZone === "Experience") {
+  renderExperiencePanel();
+  return;
+}
 
-    if (foundZone === "AI") {
-    renderIAPanel();
-    panel.style.display = "block";
-    return;
-  }
+if (foundZone === "AI") {
+  renderIAPanel();
+  return;
+}
 
   // 🏝️ ZONA NORMAL
-  panel.innerHTML = `<h2>${foundZone}</h2>`;
-  panel.style.display = "block";
+showPanel(`<h2>${foundZone}</h2>`);
 }
 
   // 🏝️ AI FUNCTION 
