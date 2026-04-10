@@ -136,8 +136,6 @@ showPanel(`
 // 🎮 EXPERIENCE PANEL PRO
 // ======================
 function renderExperiencePanel() {
-
-  // INTRO
   if (expStep === "intro") {
     showPanel(`
       <h2>💼 Experience Island</h2>
@@ -154,246 +152,177 @@ function renderExperiencePanel() {
       <button id="start">Start Mission 🚀</button>
     `);
 
-    const btn = document.getElementById("start");
+    const startBtn = document.getElementById("start");
 
-    if (btn) {
-      btn.onclick = () => {
+    if (startBtn) {
+      startBtn.onclick = () => {
         expStep = "investigation";
         renderExperiencePanel();
       };
     }
-  }
-}
 
-  // INVESTIGATION
-  if (expStep === "investigation"as ExpStep) {
-
-  showPanel(`
-    <h2>🚨 Production Incident</h2>
-
-    <p><strong>Scenario:</strong> Users cannot complete checkout.</p>
-
-    <p>This is a real-world QA situation where I investigate multiple system layers.</p>
-
-    <button id="logs">📊 Analyze system logs</button>
-    <button id="api">🌐 Validate backend API</button>
-    <button id="auto">🧪 Execute automated tests</button>
-    <button id="db">🗄️ Validate database data</button>
-
-    <br/><br/>
-    <button id="answer">Submit root cause</button>
-  `);
-
-  const logsBtn = document.getElementById("logs");
-  const apiBtn = document.getElementById("api");
-  const autoBtn = document.getElementById("auto");
-  const dbBtn = document.getElementById("db");
-  const answerBtn = document.getElementById("answer");
-
-  if (logsBtn) {
-    logsBtn.onclick = () => {
-      showPanel("<p>📊 Logs show payment service timeout...</p>");
-    };
+    return;
   }
 
-  if (apiBtn) {
-    apiBtn.onclick = () => {
-      showPanel("<p>🌐 API response: 500 Internal Server Error</p>");
-    };
-  }
-
-  if (autoBtn) {
-    autoBtn.onclick = () => {
-      showPanel("<p>🧪 Automated tests failing on checkout flow</p>");
-    };
-  }
-
-  if (dbBtn) {
-    dbBtn.onclick = () => {
-      showPanel("<p>🗄️ Database connection stable, no issues found</p>");
-    };
-  }
-
-  if (answerBtn) {
-    answerBtn.onclick = () => {
-      expStep = "answer";
-      renderExperiencePanel();
-    };
-  }
-}
-
-    // LOGS
-const logsBtn = document.getElementById("logs");
-
-if (logsBtn) {
-  logsBtn.onclick = () => {
+  if (expStep === "investigation") {
     showPanel(`
-      <h3>📊 Logs Analysis</h3>
-      <p>Error: Payment timeout</p>
-      <p>💼 I use monitoring tools to detect production issues.</p>
-      <button id="back">⬅ Back</button>
+      <h2>🚨 Production Incident</h2>
+
+      <p><strong>Scenario:</strong> Users cannot complete checkout.</p>
+
+      <button id="logs">📊 Analyze system logs</button>
+      <button id="api">🌐 Validate backend API</button>
+      <button id="auto">🧪 Execute automated tests</button>
+      <button id="db">🗄️ Validate database data</button>
+
+      <br/><br/>
+      <button id="answer">Submit root cause</button>
     `);
 
-    const backBtn = document.getElementById("back");
+    const showInvestigationDetail = (content: string) => {
+      showPanel(`
+        ${content}
+        <button id="back">⬅ Back</button>
+      `);
 
-    if (backBtn) {
-      backBtn.onclick = () => renderExperiencePanel();
-    }
-  };
-}
+      const backBtn = document.getElementById("back");
+      if (backBtn) backBtn.onclick = () => renderExperiencePanel();
+    };
 
-    // API
-   const apiBtn = document.getElementById("api");
+    const logsBtn = document.getElementById("logs");
+    const apiBtn = document.getElementById("api");
+    const autoBtn = document.getElementById("auto");
+    const dbBtn = document.getElementById("db");
+    const answerBtn = document.getElementById("answer");
 
-if (apiBtn) {
-  apiBtn.onclick = () => {
-    showPanel(`
-      <h3>🌐 API Validation</h3>
-      <p>Status: 500</p>
-      <p>💼 I validate backend services using Postman.</p>
-      <button id="back">⬅ Back</button>
-    `);
-
-    const backBtn = document.getElementById("back");
-
-    if (backBtn) {
-      backBtn.onclick = () => renderExperiencePanel();
-    }
-  };
-}
-
-    // AUTO
-const autoBtn = document.getElementById("auto");
-
-if (autoBtn) {
-  autoBtn.onclick = () => {
-    showPanel(`
-      <h3>🧪 Automation</h3>
-      <p>Test failed</p>
-      <p>💼 I build automation with Cypress & Playwright.</p>
-      <button id="back">⬅ Back</button>
-    `);
-
-    const backBtn = document.getElementById("back");
-
-    if (backBtn) {
-      backBtn.onclick = () => renderExperiencePanel();
-    }
-  };
-}
-
-    // DB
-const dbBtn = document.getElementById("db");
-const answerBtn = document.getElementById("answer");
-
-if (dbBtn) {
-  dbBtn.onclick = () => {
-    showPanel(`
-      <h3>🗄️ Database</h3>
-      <p>Failed transactions</p>
-      <p>💼 I use SQL to validate data.</p>
-      <button id="back">⬅ Back</button>
-    `);
-
-    const backBtn = document.getElementById("back");
-    if (backBtn) backBtn.onclick = () => renderExperiencePanel();
-  };
-}
-
-if (answerBtn) {
-  answerBtn.onclick = () => {
-    expStep = "answer";
-    renderExperiencePanel();
-  };
-}
-
-// ANSWER
-else if (expStep === "answer" as ExpStep) {
-  showPanel(`
-    <h2>🧠 Root Cause</h2>
-
-    <p>What is causing the issue?</p>
-
-    <button id="ui">UI issue</button>
-    <button id="apiCorrect">API failure</button>
-    <button id="dbWrong">Database</button>
-  `);
-
-  // WRONG ANSWERS (HINTS)
-  const showWrongAnswer = () => {
-    attempts++;
-
-    let hint = "";
-
-    if (attempts === 1) {
-      hint = "💡 Hint: The issue is not in the UI layer.";
-    } else if (attempts === 2) {
-      hint = "💡 Hint: Check the API response status.";
-    } else {
-      hint = "✔ The correct answer is API failure.";
+    if (logsBtn) {
+      logsBtn.onclick = () => showInvestigationDetail(`
+        <h3>📊 Logs Analysis</h3>
+        <p>Error: Payment timeout</p>
+        <p>💼 I use monitoring tools to detect production issues.</p>
+      `);
     }
 
-    showPanel(`
-      <h2>❌ Not quite right</h2>
-      <p>${hint}</p>
-      <button id="retry">Try again</button>
-    `);
+    if (apiBtn) {
+      apiBtn.onclick = () => showInvestigationDetail(`
+        <h3>🌐 API Validation</h3>
+        <p>Status: 500</p>
+        <p>💼 I validate backend services using Postman.</p>
+      `);
+    }
 
-    const retryBtn = document.getElementById("retry");
-    if (retryBtn) {
-      retryBtn.onclick = () => {
+    if (autoBtn) {
+      autoBtn.onclick = () => showInvestigationDetail(`
+        <h3>🧪 Automation</h3>
+        <p>Test failed</p>
+        <p>💼 I build automation with Cypress & Playwright.</p>
+      `);
+    }
+
+    if (dbBtn) {
+      dbBtn.onclick = () => showInvestigationDetail(`
+        <h3>🗄️ Database</h3>
+        <p>Failed transactions</p>
+        <p>💼 I use SQL to validate data.</p>
+      `);
+    }
+
+    if (answerBtn) {
+      answerBtn.onclick = () => {
         expStep = "answer";
         renderExperiencePanel();
       };
     }
-  };
 
-  const uiBtn = document.getElementById("ui");
-  const dbWrongBtn = document.getElementById("dbWrong");
-  const apiCorrectBtn = document.getElementById("apiCorrect");
+    return;
+  }
 
-  if (uiBtn) uiBtn.onclick = showWrongAnswer;
-  if (dbWrongBtn) dbWrongBtn.onclick = showWrongAnswer;
+  if (expStep === "answer") {
+    showPanel(`
+      <h2>🧠 Root Cause</h2>
 
-  // CORRECT ANSWER + REASONING
-  if (apiCorrectBtn) {
-    apiCorrectBtn.onclick = () => {
+      <p>What is causing the issue?</p>
+
+      <button id="ui">UI issue</button>
+      <button id="apiCorrect">API failure</button>
+      <button id="dbWrong">Database</button>
+    `);
+
+    const showWrongAnswer = () => {
+      attempts++;
+
+      let hint = "";
+
+      if (attempts === 1) {
+        hint = "💡 Hint: The issue is not in the UI layer.";
+      } else if (attempts === 2) {
+        hint = "💡 Hint: Check the API response status.";
+      } else {
+        hint = "✔ The correct answer is API failure.";
+      }
+
       showPanel(`
-        <h2>✔ Correct! API Failure</h2>
-
-        <p><strong>Why this is correct:</strong></p>
-        <ul>
-          <li>API returned 500 error → backend failure</li>
-          <li>Logs show payment timeout</li>
-          <li>Database errors are consequences</li>
-          <li>Automation only detects issues</li>
-        </ul>
-
-        <p><strong>QA Reasoning:</strong><br/>
-        We analyze signals across layers to find root cause.</p>
-
-        <p>💼 <strong>My strengths:</strong></p>
-        <ul>
-          <li>Analytical thinking</li>
-          <li>API testing</li>
-          <li>Production debugging</li>
-        </ul>
-
-        <button id="restart">Restart Mission</button>
+        <h2>❌ Not quite right</h2>
+        <p>${hint}</p>
+        <button id="retry">Try again</button>
       `);
 
-      const restartBtn = document.getElementById("restart");
-      if (restartBtn) {
-        restartBtn.onclick = () => {
-          expStep = "intro";
-          attempts = 0;
+      const retryBtn = document.getElementById("retry");
+      if (retryBtn) {
+        retryBtn.onclick = () => {
+          expStep = "answer";
           renderExperiencePanel();
         };
       }
     };
+
+    const uiBtn = document.getElementById("ui");
+    const dbWrongBtn = document.getElementById("dbWrong");
+    const apiCorrectBtn = document.getElementById("apiCorrect");
+
+    if (uiBtn) uiBtn.onclick = showWrongAnswer;
+    if (dbWrongBtn) dbWrongBtn.onclick = showWrongAnswer;
+
+    if (apiCorrectBtn) {
+      apiCorrectBtn.onclick = () => {
+        showPanel(`
+          <h2>✔ Correct! API Failure</h2>
+
+          <p><strong>Why this is correct:</strong></p>
+          <ul>
+            <li>API returned 500 error → backend failure</li>
+            <li>Logs show payment timeout</li>
+            <li>Database errors are consequences</li>
+            <li>Automation only detects issues</li>
+          </ul>
+
+          <p><strong>QA Reasoning:</strong><br/>
+          We analyze signals across layers to find root cause.</p>
+
+          <p>💼 <strong>My strengths:</strong></p>
+          <ul>
+            <li>Analytical thinking</li>
+            <li>API testing</li>
+            <li>Production debugging</li>
+          </ul>
+
+          <button id="restart">Restart Mission</button>
+        `);
+
+        const restartBtn = document.getElementById("restart");
+        if (restartBtn) {
+          restartBtn.onclick = () => {
+            expStep = "intro";
+            attempts = 0;
+            renderExperiencePanel();
+          };
+        }
+      };
+    }
   }
 }
 
+  
 // ======================
 // 🎯 MAIN
 // ======================
@@ -401,14 +330,12 @@ export function checkZones() {
   if (!player) return;
 
   let foundZone: string | null = null;
-  let activeZone = null;
 
   for (const z of zones) {
     const distance = player.position.distanceTo(z.mesh.position);
 
     if (distance < 2) {
       foundZone = z.title;
-      activeZone = z;
       break;
     }
   }
