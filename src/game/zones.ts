@@ -11,10 +11,10 @@ let collected = new Set<string>();
 let score = 0;
 const total = 6;
 
-type MissionId = "aiBugAnalysis" | "experienceRootCause";
+type MissionId = "aiBugAnalysis" | "aiTestPlan" | "experienceRootCause";
 
 const completedMissions = new Set<MissionId>();
-const totalMissions = 2;
+const totalMissions = 3;
 
 let currentZone: string | null = null;
 let finalMessageShown = false;
@@ -150,21 +150,70 @@ const zones = [
 // ======================
 // 🎮 IA PANEL PRO
 // ======================
-function renderIAPanel(message = "") {
+function renderIAPanel() {
   showPanel(`
-    <h2>🤖 AI Debug Assistant</h2>
+    <h2>🤖 AI QA Lab</h2>
+    <p>Choose an AI mission.</p>
+
+    <button id="bugMissionBtn">Mission 1: Analyze a bug</button>
+    <br/><br/>
+    <button id="testPlanMissionBtn">Mission 2: Create a test plan</button>
+    <br/><br/>
+    <button id="claudeMissionBtn" disabled>Mission 3: Automation with Claude - coming soon</button>
+  `);
+
+  const bugMissionBtn = document.getElementById("bugMissionBtn");
+  const testPlanMissionBtn = document.getElementById("testPlanMissionBtn");
+
+  if (bugMissionBtn) bugMissionBtn.onclick = () => renderAIBugMission();
+  if (testPlanMissionBtn) testPlanMissionBtn.onclick = () => renderAITestPlanMission();
+}
+
+function renderAIResult(title: string, result: string, missionCompleted: boolean, backAction: () => void) {
+  showPanel(`
+    <h2>${title}</h2>
+    <p>${missionCompleted ? "🚀 Mission completed! +2000 points" : "🚀 Mission already completed"}</p>
+    <pre id="aiResult"></pre>
+    <button id="tryAgainBtn">Try again</button>
+    <button id="aiMenuBtn">AI mission menu</button>
+  `);
+
+  const resultEl = document.getElementById("aiResult");
+  if (resultEl) {
+    resultEl.textContent = result;
+    resultEl.style.cssText = `
+      white-space:pre-wrap;
+      font-family:inherit;
+    `;
+  }
+
+  const tryAgainBtn = document.getElementById("tryAgainBtn");
+  const aiMenuBtn = document.getElementById("aiMenuBtn");
+
+  if (tryAgainBtn) tryAgainBtn.onclick = backAction;
+  if (aiMenuBtn) aiMenuBtn.onclick = () => renderIAPanel();
+}
+
+function renderAIBugMission(message = "") {
+  showPanel(`
+    <h2>🐞 Bug Analysis Mission</h2>
     <p>Describe the bug and I will analyze it like a QA engineer.</p>
     ${message ? `<p>${message}</p>` : ""}
     <textarea
       id="bugInput"
       rows="5"
       placeholder="Example: Checkout fails with 500 error after clicking Pay"
+      style="width:100%;box-sizing:border-box;"
     ></textarea>
     <br/><br/>
-    <button id="analyzeBtn">Analyze</button>
+    <button id="analyzeBtn">Analyze bug</button>
+    <button id="aiMenuBtn">AI mission menu</button>
   `);
 
   const btn = document.getElementById("analyzeBtn");
+  const aiMenuBtn = document.getElementById("aiMenuBtn");
+
+  if (aiMenuBtn) aiMenuBtn.onclick = () => renderIAPanel();
 
   if (btn) {
     btn.addEventListener("click", async () => {
@@ -172,7 +221,7 @@ function renderIAPanel(message = "") {
       const bug = input?.value.trim();
 
       if (!bug) {
-        renderIAPanel("Please describe the bug before analyzing it.");
+        renderAIBugMission("Please describe the bug before analyzing it.");
         return;
       }
 
@@ -182,26 +231,54 @@ function renderIAPanel(message = "") {
         const result = await analyzeWithAI(bug);
         const missionCompleted = completeMission("aiBugAnalysis");
 
-        showPanel(`
-          <h2>🧠 AI Result</h2>
-          <p>${missionCompleted ? "🚀 Mission completed! +2000 points" : "🚀 Mission already completed"}</p>
-          <pre id="aiResult"></pre>
-          <button id="askAgainBtn">Analyze another bug</button>
-        `);
-
-        const resultEl = document.getElementById("aiResult");
-        if (resultEl) {
-          resultEl.textContent = result;
-          resultEl.style.cssText = `
-            white-space:pre-wrap;
-            font-family:inherit;
-          `;
-        }
-
-        const askAgainBtn = document.getElementById("askAgainBtn");
-        if (askAgainBtn) askAgainBtn.onclick = () => renderIAPanel();
+        renderAIResult("🧠 Bug Analysis Result", result, missionCompleted, () => renderAIBugMission());
       } catch {
-        renderIAPanel("AI analysis failed. Please check that the AI server is running.");
+        renderAIBugMission("AI analysis failed. Please check that the AI server is running.");
+      }
+    });
+  }
+}
+
+function renderAITestPlanMission(message = "") {
+  showPanel(`
+    <h2>🧪 User Story Test Plan</h2>
+    <p>Paste a user story and I will convert it into Given, When, Then scenarios.</p>
+    ${message ? `<p>${message}</p>` : ""}
+    <textarea
+      id="userStoryInput"
+      rows="6"
+      placeholder="As a user, I want to reset my password so that I can recover access to my account."
+      style="width:100%;box-sizing:border-box;"
+    ></textarea>
+    <br/><br/>
+    <button id="generateTestPlanBtn">Generate test plan</button>
+    <button id="aiMenuBtn">AI mission menu</button>
+  `);
+
+  const btn = document.getElementById("generateTestPlanBtn");
+  const aiMenuBtn = document.getElementById("aiMenuBtn");
+
+  if (aiMenuBtn) aiMenuBtn.onclick = () => renderIAPanel();
+
+  if (btn) {
+    btn.addEventListener("click", async () => {
+      const input = document.getElementById("userStoryInput") as HTMLTextAreaElement | null;
+      const userStory = input?.value.trim();
+
+      if (!userStory) {
+        renderAITestPlanMission("Please paste a user story before generating the test plan.");
+        return;
+      }
+
+      showPanel("<p>🤖 AI is creating the test plan...</p>");
+
+      try {
+        const result = await generateTestPlanWithAI(userStory);
+        const missionCompleted = completeMission("aiTestPlan");
+
+        renderAIResult("🧪 Test Plan Result", result, missionCompleted, () => renderAITestPlanMission());
+      } catch {
+        renderAITestPlanMission("Test plan generation failed. Please check that the AI server is running.");
       }
     });
   }
@@ -467,6 +544,19 @@ async function analyzeWithAI(bug: string): Promise<string> {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ bug }),
+  });
+
+  const data: AIResponse = await res.json();
+  return data.result;
+}
+
+async function generateTestPlanWithAI(userStory: string): Promise<string> {
+  const res = await fetch("http://localhost:3000/test-plan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ userStory }),
   });
 
   const data: AIResponse = await res.json();
