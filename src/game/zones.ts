@@ -17,6 +17,7 @@ const completedMissions = new Set<MissionId>();
 const totalMissions = 2;
 
 let currentZone: string | null = null;
+let finalMessageShown = false;
 
 // Experience
 type ExpStep = "intro" | "investigation" | "answer";
@@ -51,6 +52,7 @@ function completeMission(missionId: MissionId) {
   completedMissions.add(missionId);
   score += 2000;
   updateScoreUI();
+  checkFinalProgress();
 
   return true;
 }
@@ -60,7 +62,27 @@ updateScoreUI();
 // ======================
 // 🏆 FINAL
 // ======================
+function hasCollectedAllTreasures() {
+  return collected.size === total;
+}
+
+function hasCompletedAllMissions() {
+  return completedMissions.size === totalMissions;
+}
+
+function checkFinalProgress() {
+  if (hasCollectedAllTreasures() && hasCompletedAllMissions()) {
+    showFinalMessage();
+  }
+}
+
 function showFinalMessage() {
+  if (finalMessageShown || !hasCollectedAllTreasures() || !hasCompletedAllMissions()) {
+    return;
+  }
+
+  finalMessageShown = true;
+
   const final = document.createElement("div");
 
   final.innerHTML = `
@@ -89,6 +111,7 @@ function showFinalMessage() {
     score = 0;
     expStep = "intro";
     attempts = 0;
+    finalMessageShown = false;
 
     if (player) player.position.set(0, 1, 0);
 
@@ -414,7 +437,7 @@ export function checkZones() {
     score += 1000;
     updateScoreUI();
 
-    if (collected.size === total) showFinalMessage();
+    checkFinalProgress();
   }
 
   // 🎮 EXPERIENCE
