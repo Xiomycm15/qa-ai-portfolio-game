@@ -11,10 +11,11 @@ export function getPanel() {
       transform:translate(-50%,-50%);
       background:black;
       color:white;
-      padding:20px;
+      padding:20px 48px 20px 20px;
       width:380px;
       display:none;
       z-index:999;
+      box-sizing:border-box;
     `;
 
     document.body.appendChild(panel);
@@ -25,8 +26,29 @@ export function getPanel() {
 
 export function showPanel(content: string) {
   const p = getPanel();
-  p.innerHTML = content;
+  p.innerHTML = `
+    <button id="closePanel" aria-label="Close panel">&times;</button>
+    ${content}
+  `;
   p.style.display = "block";
+
+  const closeBtn = document.getElementById("closePanel");
+  if (closeBtn) {
+    closeBtn.style.cssText = `
+      position:absolute;
+      top:8px;
+      right:8px;
+      width:28px;
+      height:28px;
+      border:1px solid white;
+      background:transparent;
+      color:white;
+      cursor:pointer;
+      font-size:20px;
+      line-height:20px;
+    `;
+    closeBtn.onclick = hidePanel;
+  }
 }
 
 export function hidePanel() {
