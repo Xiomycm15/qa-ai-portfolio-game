@@ -12,7 +12,9 @@ export function getPanel() {
       background:black;
       color:white;
       padding:20px 48px 20px 20px;
-      width:380px;
+      width:min(720px, calc(100vw - 32px));
+      max-height:calc(100vh - 32px);
+      overflow:auto;
       display:none;
       z-index:999;
       box-sizing:border-box;

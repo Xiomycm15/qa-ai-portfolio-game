@@ -6,22 +6,21 @@ let canMove = false;
 
 export const setCanMove = (v: boolean) => canMove = v;
 
-// 🧠 Normalizamos keys
 window.addEventListener('keydown', e => {
-  keys[e.key.toLowerCase()] = true;
+  keys[e.key] = true;
 });
 
 window.addEventListener('keyup', e => {
-  keys[e.key.toLowerCase()] = false;
+  keys[e.key] = false;
 });
 
 // 🧠 Nueva capa: intención
 function getIntent() {
   return {
-    up: keys['arrowup'] || keys['w'],
-    down: keys['arrowdown'] || keys['s'],
-    left: keys['arrowleft'] || keys['a'],
-    right: keys['arrowright'] || keys['d'],
+    up: keys['ArrowUp'],
+    down: keys['ArrowDown'],
+    left: keys['ArrowLeft'],
+    right: keys['ArrowRight'],
   };
 }
 
