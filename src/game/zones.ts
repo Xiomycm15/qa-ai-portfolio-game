@@ -390,12 +390,17 @@ function renderExperienceMenu(message = "") {
   }
 }
 
+function returnToExperienceMenu(message = "") {
+  expStep = "intro";
+  renderExperienceMenu(message);
+}
+
 function renderExperienceCompanyMission(missionId: MissionId, title: string, content: string) {
   showPanel(`
     <h2>${title}</h2>
     ${content}
     <button id="completeExperienceMissionBtn">Complete mission</button>
-    <button id="experienceMenuBtn">Experience menu</button>
+    <button id="experienceMenuBtn">Mission menu</button>
   `);
 
   const completeBtn = document.getElementById("completeExperienceMissionBtn");
@@ -404,11 +409,11 @@ function renderExperienceCompanyMission(missionId: MissionId, title: string, con
   if (completeBtn) {
     completeBtn.onclick = () => {
       const missionCompleted = completeMission(missionId);
-      renderExperienceMenu(missionCompleted ? "🚀 Mission completed! +2000 points" : "🚀 Mission already completed");
+      returnToExperienceMenu(missionCompleted ? "🚀 Mission completed! +2000 points" : "🚀 Mission already completed");
     };
   }
 
-  if (menuBtn) menuBtn.onclick = () => renderExperienceMenu();
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
 }
 
 function renderExperiencePanel() {
@@ -430,16 +435,20 @@ function renderExperiencePanel() {
 
       <br/><br/>
       <button id="answer">Submit root cause</button>
+      <button id="experienceMenuBtn">Mission menu</button>
     `);
 
     const showInvestigationDetail = (content: string) => {
       showPanel(`
         ${content}
         <button id="back">⬅ Back</button>
+        <button id="experienceMenuBtn">Mission menu</button>
       `);
 
       const backBtn = document.getElementById("back");
+      const menuBtn = document.getElementById("experienceMenuBtn");
       if (backBtn) backBtn.onclick = () => renderExperiencePanel();
+      if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
     };
 
     const logsBtn = document.getElementById("logs");
@@ -447,6 +456,7 @@ function renderExperiencePanel() {
     const autoBtn = document.getElementById("auto");
     const dbBtn = document.getElementById("db");
     const answerBtn = document.getElementById("answer");
+    const menuBtn = document.getElementById("experienceMenuBtn");
 
     if (logsBtn) {
       logsBtn.onclick = () => showInvestigationDetail(`
@@ -487,6 +497,8 @@ function renderExperiencePanel() {
       };
     }
 
+    if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+
     return;
   }
 
@@ -499,6 +511,8 @@ function renderExperiencePanel() {
       <button id="ui">UI issue</button>
       <button id="apiCorrect">API failure</button>
       <button id="dbWrong">Database</button>
+      <br/><br/>
+      <button id="experienceMenuBtn">Mission menu</button>
     `);
 
     const showWrongAnswer = () => {
@@ -518,23 +532,28 @@ function renderExperiencePanel() {
         <h2>❌ Not quite right</h2>
         <p>${hint}</p>
         <button id="retry">Try again</button>
+        <button id="experienceMenuBtn">Mission menu</button>
       `);
 
       const retryBtn = document.getElementById("retry");
+      const menuBtn = document.getElementById("experienceMenuBtn");
       if (retryBtn) {
         retryBtn.onclick = () => {
           expStep = "answer";
           renderExperiencePanel();
         };
       }
+      if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
     };
 
     const uiBtn = document.getElementById("ui");
     const dbWrongBtn = document.getElementById("dbWrong");
     const apiCorrectBtn = document.getElementById("apiCorrect");
+    const menuBtn = document.getElementById("experienceMenuBtn");
 
     if (uiBtn) uiBtn.onclick = showWrongAnswer;
     if (dbWrongBtn) dbWrongBtn.onclick = showWrongAnswer;
+    if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
 
     if (apiCorrectBtn) {
       apiCorrectBtn.onclick = () => {
@@ -563,9 +582,11 @@ function renderExperiencePanel() {
           </ul>
 
           <button id="restart">Restart Mission</button>
+          <button id="experienceMenuBtn">Mission menu</button>
         `);
 
         const restartBtn = document.getElementById("restart");
+        const menuBtn = document.getElementById("experienceMenuBtn");
         if (restartBtn) {
           restartBtn.onclick = () => {
             expStep = "intro";
@@ -573,6 +594,7 @@ function renderExperiencePanel() {
             renderExperiencePanel();
           };
         }
+        if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
       };
     }
   }
