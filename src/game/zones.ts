@@ -11,10 +11,17 @@ let collected = new Set<string>();
 let score = 0;
 const total = 6;
 
-type MissionId = "aiBugAnalysis" | "aiTestPlan" | "experienceRootCause";
+type MissionId =
+  | "aiBugAnalysis"
+  | "aiTestPlan"
+  | "experienceRootCause"
+  | "experienceCiandt"
+  | "experienceGlobant"
+  | "experienceTcs"
+  | "experienceAndes";
 
 const completedMissions = new Set<MissionId>();
-const totalMissions = 3;
+const totalMissions = 7;
 
 let currentZone: string | null = null;
 let finalMessageShown = false;
@@ -287,32 +294,126 @@ function renderAITestPlanMission(message = "") {
 // ======================
 // 🎮 EXPERIENCE PANEL PRO
 // ======================
+function renderExperienceMenu(message = "") {
+  showPanel(`
+    <h2>💼 Experience Island</h2>
+
+    <p>I am a QA Engineer with experience across production, consulting, enterprise delivery, and academic foundations.</p>
+    ${message ? `<p>${message}</p>` : ""}
+
+    <button id="scotiabankMissionBtn">Mission 1: Scotiabank</button>
+    <br/><br/>
+    <button id="ciandtMissionBtn">Mission 2: CIANDT</button>
+    <br/><br/>
+    <button id="globantMissionBtn">Mission 3: Globant</button>
+    <br/><br/>
+    <button id="tcsMissionBtn">Mission 4: Tata Consultancy Services</button>
+    <br/><br/>
+    <button id="andesMissionBtn">Mission 5: Universidad de los Andes</button>
+  `);
+
+  const scotiabankMissionBtn = document.getElementById("scotiabankMissionBtn");
+  const ciandtMissionBtn = document.getElementById("ciandtMissionBtn");
+  const globantMissionBtn = document.getElementById("globantMissionBtn");
+  const tcsMissionBtn = document.getElementById("tcsMissionBtn");
+  const andesMissionBtn = document.getElementById("andesMissionBtn");
+
+  if (scotiabankMissionBtn) {
+    scotiabankMissionBtn.onclick = () => {
+      expStep = "investigation";
+      renderExperiencePanel();
+    };
+  }
+
+  if (ciandtMissionBtn) {
+    ciandtMissionBtn.onclick = () => renderExperienceCompanyMission(
+      "experienceCiandt",
+      "🧩 CIANDT Mission",
+      `
+        <p><strong>Focus:</strong> QA processes, automation strategy, and collaborative delivery.</p>
+        <ul>
+          <li>Design test cases that support reliable sprint delivery.</li>
+          <li>Use automation to reduce repetitive validation work.</li>
+          <li>Collaborate with developers and product teams to prevent defects earlier.</li>
+        </ul>
+        <p><strong>QA value:</strong> I can turn quality practices into repeatable team habits.</p>
+      `
+    );
+  }
+
+  if (globantMissionBtn) {
+    globantMissionBtn.onclick = () => renderExperienceCompanyMission(
+      "experienceGlobant",
+      "🌎 Globant Mission",
+      `
+        <p><strong>Focus:</strong> Digital product quality in agile teams.</p>
+        <ul>
+          <li>Validate user journeys from a product mindset.</li>
+          <li>Connect UI behavior, API responses, and business rules.</li>
+          <li>Communicate risks clearly during fast delivery cycles.</li>
+        </ul>
+        <p><strong>QA value:</strong> I can help teams ship faster without losing confidence.</p>
+      `
+    );
+  }
+
+  if (tcsMissionBtn) {
+    tcsMissionBtn.onclick = () => renderExperienceCompanyMission(
+      "experienceTcs",
+      "🏢 Tata Consultancy Services Mission",
+      `
+        <p><strong>Focus:</strong> Enterprise QA discipline and structured delivery.</p>
+        <ul>
+          <li>Work with clear test evidence and traceability.</li>
+          <li>Validate complex workflows with careful regression thinking.</li>
+          <li>Support reliable releases in large-scale environments.</li>
+        </ul>
+        <p><strong>QA value:</strong> I understand how to protect stability when systems are big and interconnected.</p>
+      `
+    );
+  }
+
+  if (andesMissionBtn) {
+    andesMissionBtn.onclick = () => renderExperienceCompanyMission(
+      "experienceAndes",
+      "🎓 Universidad de los Andes Mission",
+      `
+        <p><strong>Focus:</strong> Analytical thinking, learning discipline, and technical foundations.</p>
+        <ul>
+          <li>Break complex problems into testable pieces.</li>
+          <li>Document reasoning clearly and defend decisions with evidence.</li>
+          <li>Build a strong base for continuous learning in QA and automation.</li>
+        </ul>
+        <p><strong>QA value:</strong> I bring curiosity, structure, and a learning mindset to every team.</p>
+      `
+    );
+  }
+}
+
+function renderExperienceCompanyMission(missionId: MissionId, title: string, content: string) {
+  showPanel(`
+    <h2>${title}</h2>
+    ${content}
+    <button id="completeExperienceMissionBtn">Complete mission</button>
+    <button id="experienceMenuBtn">Experience menu</button>
+  `);
+
+  const completeBtn = document.getElementById("completeExperienceMissionBtn");
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (completeBtn) {
+    completeBtn.onclick = () => {
+      const missionCompleted = completeMission(missionId);
+      renderExperienceMenu(missionCompleted ? "🚀 Mission completed! +2000 points" : "🚀 Mission already completed");
+    };
+  }
+
+  if (menuBtn) menuBtn.onclick = () => renderExperienceMenu();
+}
+
 function renderExperiencePanel() {
   if (expStep === "intro") {
-    showPanel(`
-      <h2>💼 Experience Island</h2>
-
-      <p>I am a QA Engineer with experience working in real production environments.</p>
-
-      <ul>
-        <li>Scotiabank → Banking systems & production validation</li>
-        <li>CI&T → Automation testing & QA processes</li>
-      </ul>
-
-      <p>🎯 In this mission, you will experience how I investigate and solve real production issues.</p>
-
-      <button id="start">Start Mission 🚀</button>
-    `);
-
-    const startBtn = document.getElementById("start");
-
-    if (startBtn) {
-      startBtn.onclick = () => {
-        expStep = "investigation";
-        renderExperiencePanel();
-      };
-    }
-
+    renderExperienceMenu();
     return;
   }
 
