@@ -108,9 +108,17 @@ const zones = [
 // ======================
 // 🎮 IA PANEL PRO
 // ======================
-function renderIAPanel() {
+function renderIAPanel(message = "") {
   showPanel(`
     <h2>🤖 AI Debug Assistant</h2>
+    <p>Describe the bug and I will analyze it like a QA engineer.</p>
+    ${message ? `<p>${message}</p>` : ""}
+    <textarea
+      id="bugInput"
+      rows="5"
+      placeholder="Example: Checkout fails with 500 error after clicking Pay"
+    ></textarea>
+    <br/><br/>
     <button id="analyzeBtn">Analyze</button>
   `);
 
@@ -118,16 +126,39 @@ function renderIAPanel() {
 
   if (btn) {
     btn.addEventListener("click", async () => {
+      const input = document.getElementById("bugInput") as HTMLTextAreaElement | null;
+      const bug = input?.value.trim();
+
+      if (!bug) {
+        renderIAPanel("Please describe the bug before analyzing it.");
+        return;
+      }
+
       showPanel("<p>🤖 AI is analyzing...</p>");
 
-const result = await analyzeWithAI(
-  "TypeError: Cannot read properties of undefined"
-);
+      try {
+        const result = await analyzeWithAI(bug);
 
-showPanel(`
-  <h2>🧠 AI Result</h2>
-  <p>${result}</p>
-`);
+        showPanel(`
+          <h2>🧠 AI Result</h2>
+          <pre id="aiResult"></pre>
+          <button id="askAgainBtn">Analyze another bug</button>
+        `);
+
+        const resultEl = document.getElementById("aiResult");
+        if (resultEl) {
+          resultEl.textContent = result;
+          resultEl.style.cssText = `
+            white-space:pre-wrap;
+            font-family:inherit;
+          `;
+        }
+
+        const askAgainBtn = document.getElementById("askAgainBtn");
+        if (askAgainBtn) askAgainBtn.onclick = () => renderIAPanel();
+      } catch {
+        renderIAPanel("AI analysis failed. Please check that the AI server is running.");
+      }
     });
   }
 }
