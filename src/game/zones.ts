@@ -11,6 +11,11 @@ let collected = new Set<string>();
 let score = 0;
 const total = 6;
 
+type MissionId = "aiBugAnalysis" | "experienceRootCause";
+
+const completedMissions = new Set<MissionId>();
+const totalMissions = 2;
+
 let currentZone: string | null = null;
 
 // Experience
@@ -37,8 +42,20 @@ document.body.appendChild(scoreUI);
 
 
 function updateScoreUI() {
-  scoreUI.innerText = `💎 ${collected.size}/${total} | ⭐ ${score}`;
+  scoreUI.innerText = `💎 ${collected.size}/${total} | 🚀 ${completedMissions.size}/${totalMissions} | ⭐ ${score}`;
 }
+
+function completeMission(missionId: MissionId) {
+  if (completedMissions.has(missionId)) return false;
+
+  completedMissions.add(missionId);
+  score += 2000;
+  updateScoreUI();
+
+  return true;
+}
+
+updateScoreUI();
 
 // ======================
 // 🏆 FINAL
@@ -49,6 +66,7 @@ function showFinalMessage() {
   final.innerHTML = `
     <h3>🎉 Enhorabuena!</h3>
     <p>You explored all my QA skills</p>
+    <p>🚀 Missions completed: ${completedMissions.size}/${totalMissions}</p>
     <p>⭐ Score: ${score}</p>
     <button id="restart">Restart</button>
   `;
@@ -67,6 +85,7 @@ function showFinalMessage() {
 
   document.getElementById("restart")!.onclick = () => {
     collected.clear();
+    completedMissions.clear();
     score = 0;
     expStep = "intro";
     attempts = 0;
@@ -138,9 +157,11 @@ function renderIAPanel(message = "") {
 
       try {
         const result = await analyzeWithAI(bug);
+        const missionCompleted = completeMission("aiBugAnalysis");
 
         showPanel(`
           <h2>🧠 AI Result</h2>
+          <p>${missionCompleted ? "🚀 Mission completed! +2000 points" : "🚀 Mission already completed"}</p>
           <pre id="aiResult"></pre>
           <button id="askAgainBtn">Analyze another bug</button>
         `);
@@ -316,8 +337,11 @@ function renderExperiencePanel() {
 
     if (apiCorrectBtn) {
       apiCorrectBtn.onclick = () => {
+        const missionCompleted = completeMission("experienceRootCause");
+
         showPanel(`
           <h2>✔ Correct! API Failure</h2>
+          <p>${missionCompleted ? "🚀 Mission completed! +2000 points" : "🚀 Mission already completed"}</p>
 
           <p><strong>Why this is correct:</strong></p>
           <ul>
