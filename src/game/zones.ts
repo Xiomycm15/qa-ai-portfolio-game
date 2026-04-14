@@ -301,11 +301,11 @@ function renderExperienceMenu(message = "") {
     <p>I am a QA Engineer with experience across production, consulting, enterprise delivery, and academic foundations.</p>
     ${message ? `<p>${message}</p>` : ""}
 
-    <button id="scotiabankMissionBtn">Mission 1: Scotiabank</button>
+    <button id="scotiabankMissionBtn">Mission 1: Globant</button>
     <br/><br/>
     <button id="ciandtMissionBtn">Mission 2: CIANDT</button>
     <br/><br/>
-    <button id="globantMissionBtn">Mission 3: Globant</button>
+    <button id="globantMissionBtn">Mission 3: Scotiabank</button>
     <br/><br/>
     <button id="tcsMissionBtn">Mission 4: Tata Consultancy Services</button>
     <br/><br/>
