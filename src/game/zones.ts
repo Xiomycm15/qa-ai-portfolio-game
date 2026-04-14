@@ -14,7 +14,7 @@ const total = 6;
 type MissionId =
   | "aiBugAnalysis"
   | "aiTestPlan"
-  | "experienceRootCause"
+  | "experienceScotiabank"
   | "experienceCiandt"
   | "experienceGlobant"
   | "experienceTcs"
@@ -330,35 +330,11 @@ function renderExperienceMenu(message = "") {
   }
 
   if (globantMissionBtn) {
-    globantMissionBtn.onclick = () => renderExperienceCompanyMission(
-      "experienceGlobant",
-      "🌎 Globant Mission",
-      `
-        <p><strong>Focus:</strong> Digital product quality in agile teams.</p>
-        <ul>
-          <li>Validate user journeys from a product mindset.</li>
-          <li>Connect UI behavior, API responses, and business rules.</li>
-          <li>Communicate risks clearly during fast delivery cycles.</li>
-        </ul>
-        <p><strong>QA value:</strong> I can help teams ship faster without losing confidence.</p>
-      `
-    );
+    globantMissionBtn.onclick = () => renderScotiabankMission();
   }
 
   if (tcsMissionBtn) {
-    tcsMissionBtn.onclick = () => renderExperienceCompanyMission(
-      "experienceTcs",
-      "🏢 Tata Consultancy Services Mission",
-      `
-        <p><strong>Focus:</strong> Enterprise QA discipline and structured delivery.</p>
-        <ul>
-          <li>Work with clear test evidence and traceability.</li>
-          <li>Validate complex workflows with careful regression thinking.</li>
-          <li>Support reliable releases in large-scale environments.</li>
-        </ul>
-        <p><strong>QA value:</strong> I understand how to protect stability when systems are big and interconnected.</p>
-      `
-    );
+    tcsMissionBtn.onclick = () => renderTcsMission();
   }
 
   if (andesMissionBtn) {
@@ -381,6 +357,254 @@ function renderExperienceMenu(message = "") {
 function returnToExperienceMenu(message = "") {
   expStep = "intro";
   renderExperienceMenu(message);
+}
+
+function renderScotiabankMission() {
+  showPanel(`
+    <h2>🏦 Scotiabank Backend Validation</h2>
+
+    <p>At Scotiabank, I performed backend and database validation for enterprise systems, using SQL to verify data integrity across integrated platforms and ensure financial transactions were processed correctly.</p>
+
+    <p>This mission simulates the type of backend investigation I conducted while testing complex transactional workflows.</p>
+
+    <p><strong>A customer reports that their loan payment was successfully charged, but their outstanding balance did not decrease.</strong></p>
+
+    <p>Investigate the transaction records and identify where the process failed.</p>
+
+    <button id="accessSqlRecordsBtn">Access Records SQL</button>
+    <button id="experienceMenuBtn">Mission menu</button>
+  `);
+
+  const accessBtn = document.getElementById("accessSqlRecordsBtn");
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (accessBtn) accessBtn.onclick = () => renderScotiabankRecords();
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+}
+
+function renderScotiabankRecords() {
+  showPanel(`
+    <h2>🗄️ SQL Investigation Records</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+      <div style="border:1px solid white;padding:10px;background:#111;">
+        <h3>Table 1: Payment Processor Records</h3>
+        <pre style="white-space:pre-wrap;font-family:inherit;">Payment ID | Customer | Amount | Status
+TXN-2041   | U882     | $500   | SUCCESS</pre>
+      </div>
+
+      <div style="border:1px solid white;padding:10px;background:#111;">
+        <h3>Table 2: Loan Account Records</h3>
+        <pre style="white-space:pre-wrap;font-family:inherit;">Customer | Balance Before | Balance After
+U882     | $13,000        | $13,000</pre>
+      </div>
+
+      <div style="border:1px solid white;padding:10px;background:#111;">
+        <h3>Table 3: Loan Ledger Records</h3>
+        <pre style="white-space:pre-wrap;font-family:inherit;">Transaction ID | Applied To Loan
+TXN-2041       | FALSE</pre>
+      </div>
+    </div>
+
+    <p><strong>Based on the backend records, what is the most likely root cause?</strong></p>
+
+    <button id="scotiaAnswerA">A. Payment processed but not applied to loan ledger</button>
+    <br/><br/>
+    <button id="scotiaAnswerB">B. Frontend balance display bug</button>
+    <br/><br/>
+    <button id="scotiaAnswerC">C. Customer submitted duplicate payment</button>
+    <br/><br/>
+    <button id="scotiaAnswerD">D. Loan account inactive</button>
+    <br/><br/>
+    <button id="experienceMenuBtn">Mission menu</button>
+  `);
+
+  const correctBtn = document.getElementById("scotiaAnswerA");
+  const wrongBtns = [
+    document.getElementById("scotiaAnswerB"),
+    document.getElementById("scotiaAnswerC"),
+    document.getElementById("scotiaAnswerD"),
+  ];
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (correctBtn) correctBtn.onclick = () => renderScotiabankResult(true);
+  wrongBtns.forEach((btn) => {
+    if (btn) btn.onclick = () => renderScotiabankResult(false);
+  });
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+}
+
+function renderScotiabankResult(isCorrect: boolean) {
+  if (isCorrect) {
+    const missionCompleted = completeMission("experienceScotiabank");
+
+    showPanel(`
+      <h2>Correct.</h2>
+
+      <p>The payment processor completed the transaction successfully, but the loan ledger never applied the payment to the account.</p>
+
+      <p>This mirrors the backend and integration validation work I performed at Scotiabank, where I used SQL and system reconciliation to identify inconsistencies across financial workflows.</p>
+
+      <p>${missionCompleted ? "🚀 Mission Completed. +2000 points" : "🚀 Mission already completed."}</p>
+
+      <button id="retryScotiabankBtn">Review records</button>
+      <button id="experienceMenuBtn">Mission menu</button>
+    `);
+  } else {
+    showPanel(`
+      <h2>Not quite.</h2>
+
+      <p>The payment itself succeeded, but the balance remained unchanged because the transaction was never applied to the loan ledger.</p>
+
+      <p>Backend reconciliation and SQL validation were key parts of my testing process when verifying financial system integrations at Scotiabank.</p>
+
+      <button id="retryScotiabankBtn">Try again</button>
+      <button id="experienceMenuBtn">Mission menu</button>
+    `);
+  }
+
+  const retryBtn = document.getElementById("retryScotiabankBtn");
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (retryBtn) retryBtn.onclick = () => renderScotiabankRecords();
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+}
+
+function renderTcsMission() {
+  showPanel(`
+    <h2>🏢 Tata Consultancy Services Integration Mission</h2>
+
+    <p>At Tata Consultancy Services, I validated end-to-end banking integrations across Oracle FLEXCUBE and connected enterprise systems, ensuring financial workflows processed accurately between platforms.</p>
+
+    <p>This mission simulates the integration testing and business flow validation I performed on complex banking systems.</p>
+
+    <p><strong>A customer initiates an international transfer through the banking portal.</strong></p>
+
+    <p>The transfer request is created successfully, but the funds are never disbursed to the receiving bank.</p>
+
+    <p>Trace the transaction across integrated systems and identify where the workflow failed.</p>
+
+    <button id="showTcsPipelineBtn">Show System Flow Pipeline</button>
+    <button id="experienceMenuBtn">Mission menu</button>
+  `);
+
+  const pipelineBtn = document.getElementById("showTcsPipelineBtn");
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (pipelineBtn) pipelineBtn.onclick = () => renderTcsPipeline();
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+}
+
+function renderTcsPipeline() {
+  const nodeInfo: Record<string, string> = {
+    customerPortal: "Customer Portal\nStatus: SUCCESS\nRequest submitted successfully.",
+    flexcube: "FLEXCUBE\nStatus: SUCCESS\nTransaction booked to core banking.",
+    paymentProcessor: "Payment Processor\nStatus: SUCCESS\nPayment instruction generated.",
+    settlementEngine: "Settlement Engine\nStatus: FAILED\nSettlement confirmation timeout.",
+    receivingBank: "Receiving Bank\nStatus: NOT REACHED",
+  };
+
+  showPanel(`
+    <h2>🔁 System Flow Pipeline</h2>
+
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;max-width:360px;">
+      <button id="customerPortalNode" type="button">Customer Portal</button>
+      <div style="text-align:center;">↓</div>
+      <button id="flexcubeNode" type="button">FLEXCUBE Core Banking</button>
+      <div style="text-align:center;">↓</div>
+      <button id="paymentProcessorNode" type="button">Payment Processor</button>
+      <div style="text-align:center;">↓</div>
+      <button id="settlementEngineNode" type="button">Settlement Engine</button>
+      <div style="text-align:center;">↓</div>
+      <button id="receivingBankNode" type="button">Receiving Bank</button>
+    </div>
+
+    <pre id="tcsNodeInfo" style="white-space:pre-wrap;font-family:inherit;border:1px solid white;padding:10px;background:#111;">Hover over a pipeline node to inspect system status.</pre>
+
+    <p><strong>Where did the integration fail?</strong></p>
+
+    <button id="tcsAnswerA">a. FLEXCUBE Core Banking</button>
+    <br/><br/>
+    <button id="tcsAnswerB">b. Payment Processor</button>
+    <br/><br/>
+    <button id="tcsAnswerC">c. Settlement Engine</button>
+    <br/><br/>
+    <button id="tcsAnswerD">d. Receiving Bank</button>
+    <br/><br/>
+    <button id="experienceMenuBtn">Mission menu</button>
+  `);
+
+  const bindNodeHover = (nodeId: string, infoKey: string) => {
+    const node = document.getElementById(nodeId);
+    const info = document.getElementById("tcsNodeInfo");
+
+    if (node && info) {
+      node.onmouseenter = () => {
+        info.textContent = nodeInfo[infoKey];
+      };
+      node.onfocus = () => {
+        info.textContent = nodeInfo[infoKey];
+      };
+    }
+  };
+
+  bindNodeHover("customerPortalNode", "customerPortal");
+  bindNodeHover("flexcubeNode", "flexcube");
+  bindNodeHover("paymentProcessorNode", "paymentProcessor");
+  bindNodeHover("settlementEngineNode", "settlementEngine");
+  bindNodeHover("receivingBankNode", "receivingBank");
+
+  const correctBtn = document.getElementById("tcsAnswerC");
+  const wrongBtns = [
+    document.getElementById("tcsAnswerA"),
+    document.getElementById("tcsAnswerB"),
+    document.getElementById("tcsAnswerD"),
+  ];
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (correctBtn) correctBtn.onclick = () => renderTcsResult(true);
+  wrongBtns.forEach((btn) => {
+    if (btn) btn.onclick = () => renderTcsResult(false);
+  });
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+}
+
+function renderTcsResult(isCorrect: boolean) {
+  if (isCorrect) {
+    const missionCompleted = completeMission("experienceTcs");
+
+    showPanel(`
+      <h2>Correct.</h2>
+
+      <p>The transfer successfully passed through the banking portal, FLEXCUBE, and payment processor, but failed at the settlement engine before reaching the receiving bank.</p>
+
+      <p>This reflects the integration and end-to-end workflow validation I performed while testing complex banking platforms at Tata Consultancy Services.</p>
+
+      <p>${missionCompleted ? "🚀 Mission Completed! +2000 points" : "🚀 Mission already completed."}</p>
+
+      <button id="reviewTcsPipelineBtn">Review pipeline</button>
+      <button id="experienceMenuBtn">Mission menu</button>
+    `);
+  } else {
+    showPanel(`
+      <h2>Trace Analysis Incomplete.</h2>
+
+      <p>System logs show the transaction cleared upstream systems successfully and failed before reaching final settlement.</p>
+
+      <p><strong>Root Cause Location:</strong> Settlement Engine</p>
+
+      <p>This mirrors the integration tracing and workflow validation I performed while testing enterprise banking systems at Tata Consultancy Services.</p>
+
+      <button id="reviewTcsPipelineBtn">Try again</button>
+      <button id="experienceMenuBtn">Mission menu</button>
+    `);
+  }
+
+  const reviewBtn = document.getElementById("reviewTcsPipelineBtn");
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (reviewBtn) reviewBtn.onclick = () => renderTcsPipeline();
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
 }
 
 function renderCiandtMission(message = "") {
@@ -715,7 +939,7 @@ function renderExperiencePanel() {
 
     if (apiCorrectBtn) {
       apiCorrectBtn.onclick = () => {
-        const missionCompleted = completeMission("experienceRootCause");
+        const missionCompleted = completeMission("experienceGlobant");
 
         showPanel(`
           <h2>✔ Correct! API Failure</h2>
