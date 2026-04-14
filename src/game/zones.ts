@@ -878,7 +878,13 @@ function renderExperiencePanel() {
 
   if (expStep === "investigation") {
     showPanel(`
-      <h2>🚨 Production Incident</h2>
+      <h2>🚨 CI&T Production Investigation</h2>
+
+      <p>During my time at CI&T, I supported live production environments by investigating real-time application issues affecting users in production.</p>
+
+      <p>Leveraging tools like Splunk and Dynatrace, I analyzed logs, monitored performance metrics, traced root causes, and escalated incidents for resolution.</p>
+
+      <p>This mission recreates the type of high-pressure production investigations I performed while supporting critical enterprise systems.</p>
 
       <p><strong>Scenario:</strong> Users cannot complete checkout.</p>
 
