@@ -338,25 +338,118 @@ function renderExperienceMenu(message = "") {
   }
 
   if (andesMissionBtn) {
-    andesMissionBtn.onclick = () => renderExperienceCompanyMission(
-      "experienceAndes",
-      "🎓 Universidad de los Andes Mission",
-      `
-        <p><strong>Focus:</strong> Analytical thinking, learning discipline, and technical foundations.</p>
-        <ul>
-          <li>Break complex problems into testable pieces.</li>
-          <li>Document reasoning clearly and defend decisions with evidence.</li>
-          <li>Build a strong base for continuous learning in QA and automation.</li>
-        </ul>
-        <p><strong>QA value:</strong> I bring curiosity, structure, and a learning mindset to every team.</p>
-      `
-    );
+    andesMissionBtn.onclick = () => renderAndesMission();
   }
 }
 
 function returnToExperienceMenu(message = "") {
   expStep = "intro";
   renderExperienceMenu(message);
+}
+
+function renderAndesMission() {
+  showPanel(`
+    <h2>🎓 Universidad de los Andes Code Debugging</h2>
+
+    <p>At Universidad de los Andes, I contributed as both a Front-End Developer and QA Engineer — building Angular features, writing unit tests, and performing white-box testing to validate application logic at code level.</p>
+
+    <p>This mission simulates the debugging and code validation work I performed while developing and testing production features.</p>
+
+    <p><strong>A dashboard widget should display the number of completed tasks.</strong></p>
+
+    <p>Users report that the counter always shows all tasks as completed.</p>
+
+    <p>Inspect the function and identify the bug.</p>
+
+    <button id="showAndesDebugBtn">Show “Debug Console / IDE Panel”</button>
+    <button id="experienceMenuBtn">Mission menu</button>
+  `);
+
+  const debugBtn = document.getElementById("showAndesDebugBtn");
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (debugBtn) debugBtn.onclick = () => renderAndesDebugPanel();
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+}
+
+function renderAndesDebugPanel() {
+  showPanel(`
+    <h2>💻 Debug Console / IDE Panel</h2>
+
+    <pre style="white-space:pre-wrap;font-family:monospace;border:1px solid white;padding:10px;background:#111;">countCompletedTasks(tasks: Task[]): number {
+  let total = 0;
+
+  tasks.forEach(task => {
+    if (task.completed = true) {
+      total++;
+    }
+  });
+
+  return total;
+}</pre>
+
+    <p><strong>What is causing the bug?</strong></p>
+
+    <button id="andesAnswerA">A. Assignment operator used instead of comparison</button>
+    <br/><br/>
+    <button id="andesAnswerB">B. Filter method does not support arrays</button>
+    <br/><br/>
+    <button id="andesAnswerC">C. Category parameter must be number</button>
+    <br/><br/>
+    <button id="andesAnswerD">D. filteredProjects must be async</button>
+    <br/><br/>
+    <button id="experienceMenuBtn">Mission menu</button>
+  `);
+
+  const correctBtn = document.getElementById("andesAnswerA");
+  const wrongBtns = [
+    document.getElementById("andesAnswerB"),
+    document.getElementById("andesAnswerC"),
+    document.getElementById("andesAnswerD"),
+  ];
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (correctBtn) correctBtn.onclick = () => renderAndesResult(true);
+  wrongBtns.forEach((btn) => {
+    if (btn) btn.onclick = () => renderAndesResult(false);
+  });
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+}
+
+function renderAndesResult(isCorrect: boolean) {
+  if (isCorrect) {
+    const missionCompleted = completeMission("experienceAndes");
+
+    showPanel(`
+      <h2>Correct.</h2>
+
+      <p>The condition uses the assignment operator (=) instead of a comparison operator, causing every task to be evaluated as completed.</p>
+
+      <p>This reflects the white-box testing, unit testing, and code-level debugging I performed while developing Angular applications at Universidad de los Andes.</p>
+
+      <p>${missionCompleted ? "🚀 Mission Completed. +2000 points" : "🚀 Mission already completed."}</p>
+
+      <button id="reviewAndesCodeBtn">Review code</button>
+      <button id="experienceMenuBtn">Mission menu</button>
+    `);
+  } else {
+    showPanel(`
+      <h2>Not Quite.</h2>
+
+      <p>The issue is caused by using the assignment operator (=) inside the condition, which forces the value to true instead of comparing it.</p>
+
+      <p>Code-level validation and white-box testing were key parts of my development and QA work at Universidad de los Andes.</p>
+
+      <button id="reviewAndesCodeBtn">Try again</button>
+      <button id="experienceMenuBtn">Mission menu</button>
+    `);
+  }
+
+  const reviewBtn = document.getElementById("reviewAndesCodeBtn");
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (reviewBtn) reviewBtn.onclick = () => renderAndesDebugPanel();
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
 }
 
 function renderScotiabankMission() {
@@ -774,27 +867,6 @@ function renderCiandtMissionResult(correctCount: number) {
   const menuBtn = document.getElementById("experienceMenuBtn");
 
   if (tryAgainBtn) tryAgainBtn.onclick = () => renderCiandtMission();
-  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
-}
-
-function renderExperienceCompanyMission(missionId: MissionId, title: string, content: string) {
-  showPanel(`
-    <h2>${title}</h2>
-    ${content}
-    <button id="completeExperienceMissionBtn">Complete mission</button>
-    <button id="experienceMenuBtn">Mission menu</button>
-  `);
-
-  const completeBtn = document.getElementById("completeExperienceMissionBtn");
-  const menuBtn = document.getElementById("experienceMenuBtn");
-
-  if (completeBtn) {
-    completeBtn.onclick = () => {
-      const missionCompleted = completeMission(missionId);
-      returnToExperienceMenu(missionCompleted ? "🚀 Mission completed! +2000 points" : "🚀 Mission already completed");
-    };
-  }
-
   if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
 }
 
