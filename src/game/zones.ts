@@ -301,9 +301,9 @@ function renderExperienceMenu(message = "") {
     <p>I am a QA Engineer with experience across production, consulting, enterprise delivery, and academic foundations.</p>
     ${message ? `<p>${message}</p>` : ""}
 
-    <button id="scotiabankMissionBtn">Mission 1: Globant</button>
+    <button id="scotiabankMissionBtn">Mission 1: CI&T</button>
     <br/><br/>
-    <button id="ciandtMissionBtn">Mission 2: CIANDT</button>
+    <button id="ciandtMissionBtn">Mission 2: Globant</button>
     <br/><br/>
     <button id="globantMissionBtn">Mission 3: Scotiabank</button>
     <br/><br/>
@@ -750,9 +750,9 @@ function renderCiandtMission(message = "") {
   ];
 
   showPanel(`
-    <h2>🧩 CI&T Automation Strategy</h2>
+    <h2>🧩 Globant Automation Strategy</h2>
 
-    <p>At CI&T, I designed and maintained automation coverage for high-impact releases across enterprise products.</p>
+    <p>At Globant, I designed and maintained automation coverage for high-impact releases across enterprise products.</p>
 
     <p>Automation is not about testing everything — it is about prioritizing the right coverage based on business impact, regression risk, and engineering effort.</p>
 
@@ -845,14 +845,14 @@ function renderCiandtMissionResult(correctCount: number) {
     title = "Excellent Prioritization.";
     content = `
       <p>You selected the highest-value automation candidates by focusing on critical business flows and regression-prone areas.</p>
-      <p>This reflects the same risk-based automation strategy I applied while building automation coverage at CI&T.</p>
+      <p>This reflects the same risk-based automation strategy I applied while building automation coverage at Globant.</p>
       <p>${missionCompleted ? "🚀 Mission Completed! +2000 points" : "🚀 You already completed this mission."}</p>
     `;
   } else if (correctCount > 0) {
     title = "Good Strategy.";
     content = `
       <p>Automation prioritization is about balancing business impact, regression risk, and implementation effort.</p>
-      <p>In real projects at CI&T, I focused first on protecting critical paths and high-risk integrations.</p>
+      <p>In real projects at Globant, I focused first on protecting critical paths and high-risk integrations.</p>
     `;
   }
 
