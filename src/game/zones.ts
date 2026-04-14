@@ -326,19 +326,7 @@ function renderExperienceMenu(message = "") {
   }
 
   if (ciandtMissionBtn) {
-    ciandtMissionBtn.onclick = () => renderExperienceCompanyMission(
-      "experienceCiandt",
-      "🧩 CIANDT Mission",
-      `
-        <p><strong>Focus:</strong> QA processes, automation strategy, and collaborative delivery.</p>
-        <ul>
-          <li>Design test cases that support reliable sprint delivery.</li>
-          <li>Use automation to reduce repetitive validation work.</li>
-          <li>Collaborate with developers and product teams to prevent defects earlier.</li>
-        </ul>
-        <p><strong>QA value:</strong> I can turn quality practices into repeatable team habits.</p>
-      `
-    );
+    ciandtMissionBtn.onclick = () => renderCiandtMission();
   }
 
   if (globantMissionBtn) {
@@ -393,6 +381,176 @@ function renderExperienceMenu(message = "") {
 function returnToExperienceMenu(message = "") {
   expStep = "intro";
   renderExperienceMenu(message);
+}
+
+function renderCiandtMission(message = "") {
+  const selectedScenarios = new Set<number>();
+  const correctScenarios = new Set([1, 2, 3]);
+
+  const scenarios = [
+    {
+      id: 1,
+      title: "Checkout Saved Card Flow",
+      businessImpact: "Critical",
+      regressionRisk: "High",
+      automationEffort: "Medium",
+    },
+    {
+      id: 2,
+      title: "Payment API Validation",
+      businessImpact: "Critical",
+      regressionRisk: "High",
+      automationEffort: "Low",
+    },
+    {
+      id: 3,
+      title: "Login Cross-Browser Validation",
+      businessImpact: "High",
+      regressionRisk: "Medium",
+      automationEffort: "Low",
+    },
+    {
+      id: 4,
+      title: "Profile Avatar Upload",
+      businessImpact: "Low",
+      regressionRisk: "Low",
+      automationEffort: "Medium",
+    },
+    {
+      id: 5,
+      title: "FAQ Search Function",
+      businessImpact: "Low",
+      regressionRisk: "Low",
+      automationEffort: "Low",
+    },
+    {
+      id: 6,
+      title: "Promotional Banner Animation",
+      businessImpact: "Low",
+      regressionRisk: "Low",
+      automationEffort: "High",
+    },
+  ];
+
+  showPanel(`
+    <h2>🧩 CI&T Automation Strategy</h2>
+
+    <p>At CI&T, I designed and maintained automation coverage for high-impact releases across enterprise products.</p>
+
+    <p>Automation is not about testing everything — it is about prioritizing the right coverage based on business impact, regression risk, and engineering effort.</p>
+
+    <p>This mission simulates how I approached automation strategy in real-world projects.</p>
+
+    <p><strong>You have limited sprint capacity.</strong></p>
+    <p>Choose the THREE test scenarios that should be automated before release.</p>
+    ${message ? `<p>${message}</p>` : ""}
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+      ${scenarios.map((scenario) => `
+        <button
+          id="scenario${scenario.id}"
+          type="button"
+          data-scenario-id="${scenario.id}"
+          style="text-align:left;white-space:normal;"
+        >
+          <strong>Card ${scenario.id}: ${scenario.title}</strong><br/>
+          Business Impact: ${scenario.businessImpact}<br/>
+          Regression Risk: ${scenario.regressionRisk}<br/>
+          Automation Effort: ${scenario.automationEffort}
+        </button>
+      `).join("")}
+    </div>
+
+    <p id="selectionCount">Selected: 0/3</p>
+    <button id="submitCiandtMissionBtn" disabled>Submit strategy</button>
+    <button id="experienceMenuBtn">Mission menu</button>
+  `);
+
+  const submitBtn = document.getElementById("submitCiandtMissionBtn") as HTMLButtonElement | null;
+
+  const updateSelectionUI = () => {
+    const count = document.getElementById("selectionCount");
+    if (count) count.textContent = `Selected: ${selectedScenarios.size}/3`;
+    if (submitBtn) submitBtn.disabled = selectedScenarios.size !== 3;
+
+    scenarios.forEach((scenario) => {
+      const card = document.getElementById(`scenario${scenario.id}`) as HTMLButtonElement | null;
+      if (!card) return;
+
+      card.style.border = selectedScenarios.has(scenario.id) ? "2px solid #00ff66" : "";
+      card.style.background = selectedScenarios.has(scenario.id) ? "#12331f" : "";
+    });
+  };
+
+  scenarios.forEach((scenario) => {
+    const card = document.getElementById(`scenario${scenario.id}`);
+    if (!card) return;
+
+    card.onclick = () => {
+      if (selectedScenarios.has(scenario.id)) {
+        selectedScenarios.delete(scenario.id);
+      } else if (selectedScenarios.size < 3) {
+        selectedScenarios.add(scenario.id);
+      }
+
+      updateSelectionUI();
+    };
+  });
+
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (submitBtn) {
+    submitBtn.onclick = () => {
+      if (selectedScenarios.size !== 3) {
+        renderCiandtMission("Please choose exactly three scenarios before submitting.");
+        return;
+      }
+
+      const correctCount = [...selectedScenarios].filter((id) => correctScenarios.has(id)).length;
+      renderCiandtMissionResult(correctCount);
+    };
+  }
+
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
+}
+
+function renderCiandtMissionResult(correctCount: number) {
+  const isPerfectStrategy = correctCount === 3;
+  const missionCompleted = isPerfectStrategy ? completeMission("experienceCiandt") : false;
+
+  let title = "Automation Budget Misallocated.";
+  let content = `
+    <p>Low-value tests consumed sprint capacity while critical business flows remained unprotected.</p>
+    <p>A strong automation strategy prioritizes risk and business impact over breadth.</p>
+  `;
+
+  if (isPerfectStrategy) {
+    title = "Excellent Prioritization.";
+    content = `
+      <p>You selected the highest-value automation candidates by focusing on critical business flows and regression-prone areas.</p>
+      <p>This reflects the same risk-based automation strategy I applied while building automation coverage at CI&T.</p>
+      <p>${missionCompleted ? "🚀 Mission Completed! +2000 points" : "🚀 You already completed this mission."}</p>
+    `;
+  } else if (correctCount > 0) {
+    title = "Good Strategy.";
+    content = `
+      <p>Automation prioritization is about balancing business impact, regression risk, and implementation effort.</p>
+      <p>In real projects at CI&T, I focused first on protecting critical paths and high-risk integrations.</p>
+    `;
+  }
+
+  showPanel(`
+    <h2>${title}</h2>
+    ${content}
+    <button id="tryCiandtAgainBtn">Try again</button>
+    <button id="experienceMenuBtn">Mission menu</button>
+  `);
+
+  const tryAgainBtn = document.getElementById("tryCiandtAgainBtn");
+  const menuBtn = document.getElementById("experienceMenuBtn");
+
+  if (tryAgainBtn) tryAgainBtn.onclick = () => renderCiandtMission();
+  if (menuBtn) menuBtn.onclick = () => returnToExperienceMenu();
 }
 
 function renderExperienceCompanyMission(missionId: MissionId, title: string, content: string) {
