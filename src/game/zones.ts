@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { scene } from './scene';
 import { player } from './player';
 import { showPanel, hidePanel } from "../ui/panel";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 
 // ======================
@@ -32,6 +33,7 @@ type ExpStep = "intro" | "investigation" | "answer";
 let expStep: ExpStep = "intro";
 
 let attempts = 0;
+const islandMixers: THREE.AnimationMixer[] = [];
 
 // ======================
 // 🧾 SCORE UI
@@ -140,6 +142,63 @@ function createIsland(color: number, x: number, z: number) {
   return m;
 }
 
+function createModelIsland(modelPath: string, x: number, z: number, fallbackColor: number) {
+  const group = new THREE.Group();
+  group.position.set(x, 1, z);
+  scene.add(group);
+
+  new GLTFLoader().load(
+    modelPath,
+    (gltf) => {
+      const model = gltf.scene;
+      if (gltf.animations.length > 0) {
+        const mixer = new THREE.AnimationMixer(model);
+        gltf.animations.forEach((clip) => {
+          mixer.clipAction(clip).play();
+        });
+        islandMixers.push(mixer);
+      }
+
+      const box = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+
+      box.getSize(size);
+      box.getCenter(center);
+
+      const maxDimension = Math.max(size.x, size.y, size.z);
+      const scale = maxDimension > 0 ? 6 / maxDimension : 1;
+      model.scale.setScalar(scale);
+
+      const scaledBox = new THREE.Box3().setFromObject(model);
+      const scaledCenter = new THREE.Vector3();
+      scaledBox.getCenter(scaledCenter);
+
+      model.position.sub(scaledCenter);
+
+      const centeredBox = new THREE.Box3().setFromObject(model);
+      model.position.y += -0.5 - centeredBox.min.y;
+
+      group.add(model);
+    },
+    undefined,
+    () => {
+      const fallback = new THREE.Mesh(
+        new THREE.CylinderGeometry(3, 3, 1, 32),
+        new THREE.MeshStandardMaterial({ color: fallbackColor })
+      );
+      fallback.position.set(0, 0, 0);
+      group.add(fallback);
+    }
+  );
+
+  return group;
+}
+
+export function updateZoneAnimations(delta: number) {
+  islandMixers.forEach((mixer) => mixer.update(delta));
+}
+
 // ======================
 // 🌍 ZONES
 // ======================
@@ -149,7 +208,7 @@ const zones = [
   { mesh: createIsland(0xff3366, 0, -6), title: "AI" },
   { mesh: createIsland(0xffcc00, 8, 5), title: "Postman" },
   { mesh: createIsland(0x9933ff, -8, 5), title: "Pytest" },
-  { mesh: createIsland(0x00ffff, 0, 8), title: "Experience" }
+  { mesh: createModelIsland("/experience-island.glb", 0, 8, 0x00ffff), title: "Experience" }
 ];
 
 

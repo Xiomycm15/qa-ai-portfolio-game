@@ -1,7 +1,7 @@
 import { renderer, scene, camera, updateCamera, ocean } from './game/scene';
 import { player, mixer } from './game/player';
 import { updateControls, setCanMove } from './game/controls';
-import { checkZones } from './game/zones';
+import { checkZones, updateZoneAnimations } from './game/zones';
 
 // ================= INTRO =================
 const intro = document.createElement("div");
@@ -40,8 +40,9 @@ function animate() {
     updateCamera(player.position);
   }
 
-  // animación avatar
+  // animación avatar e islas
   if (mixer) mixer.update(0.016);
+  updateZoneAnimations(0.016);
 
   checkZones();
 
