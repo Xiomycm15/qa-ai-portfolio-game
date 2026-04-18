@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { scene } from './scene';
+import { renderer, scene } from './scene';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export let player: THREE.Object3D | null = null;
@@ -13,6 +13,7 @@ let currentAnimation: string = "";
 
 new GLTFLoader().load('/avatar.glb', (gltf) => {
   player = gltf.scene;
+  optimizeAvatarMaterials(player);
   player.scale.setScalar(0.5);
   player.position.set(0, 1, 0);
   scene.add(player);
@@ -30,6 +31,47 @@ new GLTFLoader().load('/avatar.glb', (gltf) => {
     active.play();
   }
 });
+
+function optimizeAvatarMaterials(root: THREE.Object3D) {
+  const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+
+  root.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+
+    const materials = Array.isArray(child.material) ? child.material : [child.material];
+
+    materials.forEach((material) => {
+      material.transparent = false;
+      material.opacity = 1;
+      material.depthWrite = true;
+      material.depthTest = true;
+      material.alphaTest = 0.01;
+      material.side = THREE.FrontSide;
+
+      const texturedMaterial = material as THREE.MeshStandardMaterial;
+      const textures = [
+        texturedMaterial.map,
+        texturedMaterial.normalMap,
+        texturedMaterial.roughnessMap,
+        texturedMaterial.metalnessMap,
+        texturedMaterial.alphaMap,
+      ].filter((texture): texture is THREE.Texture => Boolean(texture));
+
+      textures.forEach((texture) => {
+        texture.anisotropy = maxAnisotropy;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.needsUpdate = true;
+      });
+
+      if (texturedMaterial.map) {
+        texturedMaterial.map.colorSpace = THREE.SRGBColorSpace;
+      }
+
+      material.needsUpdate = true;
+    });
+  });
+}
 
 export function playAnimation(name: string) {
   const key = name.toLowerCase(); // 👈 normalizamos

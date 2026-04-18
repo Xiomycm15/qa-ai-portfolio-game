@@ -52,7 +52,7 @@ renderer.domElement.addEventListener("pointerup", (event) => {
 
 renderer.domElement.addEventListener("wheel", (event) => {
   event.preventDefault();
-  cameraDistance = clamp(cameraDistance + event.deltaY * 0.01, 6, 18);
+  cameraDistance = clamp(cameraDistance + event.deltaY * 0.01, 3, 18);
 }, { passive: false });
 
 window.addEventListener("resize", () => {
