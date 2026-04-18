@@ -15,11 +15,15 @@ document.body.appendChild(renderer.domElement);
 
 let cameraYaw = 0;
 let cameraPitch = 0.46;
-let cameraDistance = 9.4;
+let cameraDistance = 3.6;
 let isDraggingCamera = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
 const cameraLookAtHeightOffset = 2.1;
+const mapCameraPosition = new THREE.Vector3(0, 30.4, 28.8);
+const mapCameraTarget = new THREE.Vector3(0, 0, 2);
+const cameraTransitionStart = new THREE.Vector3();
+let cameraTransitionProgress = 1;
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
@@ -93,14 +97,40 @@ geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
 scene.add(new THREE.Points(geo,new THREE.PointsMaterial({color:0xffffff,size:0.5})));
 
 // core
+export function showMapCamera() {
+  camera.position.copy(mapCameraPosition);
+  camera.lookAt(mapCameraTarget);
+}
+
+export function startGameplayCameraTransition() {
+  cameraTransitionStart.copy(camera.position);
+  cameraTransitionProgress = 0;
+}
+
+export function isGameplayCameraTransitionDone() {
+  return cameraTransitionProgress >= 1;
+}
+
 export function updateCamera(p:THREE.Vector3){
   const horizontalDistance = Math.cos(cameraPitch) * cameraDistance;
   const target = p.clone();
   const lookAtTarget = p.clone();
   lookAtTarget.y += cameraLookAtHeightOffset;
 
-  camera.position.x = target.x + Math.sin(cameraYaw) * horizontalDistance;
-  camera.position.y = target.y + Math.sin(cameraPitch) * cameraDistance;
-  camera.position.z = target.z + Math.cos(cameraYaw) * horizontalDistance;
+  const gameplayPosition = new THREE.Vector3(
+    target.x + Math.sin(cameraYaw) * horizontalDistance,
+    target.y + Math.sin(cameraPitch) * cameraDistance,
+    target.z + Math.cos(cameraYaw) * horizontalDistance
+  );
+
+  if (cameraTransitionProgress < 1) {
+    cameraTransitionProgress = Math.min(cameraTransitionProgress + 0.035, 1);
+    camera.position.lerpVectors(cameraTransitionStart, gameplayPosition, cameraTransitionProgress);
+  } else {
+    camera.position.copy(gameplayPosition);
+  }
+
   camera.lookAt(lookAtTarget);
 }
+
+showMapCamera();

@@ -1,4 +1,13 @@
-import { renderer, scene, camera, updateCamera, ocean } from './game/scene';
+import {
+  renderer,
+  scene,
+  camera,
+  updateCamera,
+  ocean,
+  showMapCamera,
+  startGameplayCameraTransition,
+  isGameplayCameraTransitionDone
+} from './game/scene';
 import { player, mixer } from './game/player';
 import { updateControls, setCanMove } from './game/controls';
 import { checkZones, updateZoneAnimations } from './game/zones';
@@ -25,9 +34,15 @@ z-index:1000;
 
 document.body.appendChild(intro);
 
+let gameStarted = false;
+let movementEnabled = false;
+
 document.getElementById("startBtn")!.onclick = () => {
   intro.style.display = "none";
-  setCanMove(true);
+  gameStarted = true;
+  movementEnabled = false;
+  setCanMove(false);
+  startGameplayCameraTransition();
 };
 
 // ================= LOOP =================
@@ -36,8 +51,17 @@ function animate() {
 
   // 🔥 evitar errores si player aún no carga
   if (player) {
-    updateControls();
-    updateCamera(player.position);
+    if (gameStarted) {
+      updateControls();
+      updateCamera(player.position);
+
+      if (!movementEnabled && isGameplayCameraTransitionDone()) {
+        movementEnabled = true;
+        setCanMove(true);
+      }
+    } else {
+      showMapCamera();
+    }
   }
 
   // animación avatar e islas

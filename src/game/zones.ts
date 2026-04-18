@@ -447,12 +447,12 @@ export function updateZoneAnimations(delta: number) {
 // 🌍 ZONES
 // ======================
 const zones = [
-  { mesh: createIsland(0x3366ff, 6, 0), title: "Playwright" },
-  { mesh: createIsland(0x00ff66, -6, 0), title: "Cypress" },
-  { mesh: createIsland(0xff3366, 0, -6), title: "AI" },
-  { mesh: createIsland(0xffcc00, 8, 5), title: "Postman" },
-  { mesh: createIsland(0x9933ff, -8, 5), title: "Pytest" },
-  { mesh: createModelIsland("/experience-island.glb", 0, 8, 0x00ffff, 13), title: "Experience", interactionRadius: 2.4 }
+  { mesh: createIsland(0x3366ff, 12, -2), title: "Playwright" },
+  { mesh: createIsland(0x00ff66, -12, -2), title: "Cypress" },
+  { mesh: createIsland(0xff3366, 0, -14), title: "AI" },
+  { mesh: createIsland(0xffcc00, 15, 10), title: "Postman" },
+  { mesh: createIsland(0x9933ff, -15, 10), title: "Pytest" },
+  { mesh: createModelIsland("/experience-island.glb", 0, 18, 0x00ffff, 13), title: "Experience", interactionRadius: 2.4 }
 ];
 
 
