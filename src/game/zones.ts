@@ -142,7 +142,7 @@ function createIsland(color: number, x: number, z: number) {
   return m;
 }
 
-function createModelIsland(modelPath: string, x: number, z: number, fallbackColor: number) {
+function createModelIsland(modelPath: string, x: number, z: number, fallbackColor: number, targetSize = 6) {
   const group = new THREE.Group();
   group.position.set(x, 1, z);
   scene.add(group);
@@ -167,7 +167,7 @@ function createModelIsland(modelPath: string, x: number, z: number, fallbackColo
       box.getCenter(center);
 
       const maxDimension = Math.max(size.x, size.y, size.z);
-      const scale = maxDimension > 0 ? 6 / maxDimension : 1;
+      const scale = maxDimension > 0 ? targetSize / maxDimension : 1;
       model.scale.setScalar(scale);
 
       const scaledBox = new THREE.Box3().setFromObject(model);
@@ -208,7 +208,7 @@ const zones = [
   { mesh: createIsland(0xff3366, 0, -6), title: "AI" },
   { mesh: createIsland(0xffcc00, 8, 5), title: "Postman" },
   { mesh: createIsland(0x9933ff, -8, 5), title: "Pytest" },
-  { mesh: createModelIsland("/experience-island.glb", 0, 8, 0x00ffff), title: "Experience" }
+  { mesh: createModelIsland("/experience-island.glb", 0, 8, 0x00ffff, 9), title: "Experience" }
 ];
 
 

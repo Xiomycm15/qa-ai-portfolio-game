@@ -1,5 +1,5 @@
 import { player } from './player';
-import { playAnimation } from './player';
+import { playAnimation, stopAnimation } from './player';
 
 const keys: Record<string, boolean> = {};
 let canMove = false;
@@ -19,8 +19,8 @@ function getIntent() {
   return {
     up: keys['ArrowUp'],
     down: keys['ArrowDown'],
-    left: keys['ArrowLeft'],
-    right: keys['ArrowRight'],
+    left: keys['ArrowRight'],
+    right: keys['ArrowLeft'],
   };
 }
 
@@ -45,16 +45,20 @@ export function updateControls() {
   }
 
   if (intent.left) {
-    player.position.x -= s;
+    player.position.x += s;
     player.rotation.y = Math.PI / 2;
     moving = true;
   }
 
   if (intent.right) {
-    player.position.x += s;
+    player.position.x -= s;
     player.rotation.y = -Math.PI / 2;
     moving = true;
   }
 
-  playAnimation(moving ? "Walk" : "Idle");
+  if (moving) {
+    playAnimation("Running");
+  } else {
+    stopAnimation();
+  }
 }

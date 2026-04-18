@@ -13,6 +13,7 @@ let currentAnimation: string = "";
 
 new GLTFLoader().load('/avatar.glb', (gltf) => {
   player = gltf.scene;
+  player.scale.setScalar(0.5);
   player.position.set(0, 1, 0);
   scene.add(player);
 
@@ -49,4 +50,12 @@ export function playAnimation(name: string) {
 
   active = next;
   currentAnimation = key;
+}
+
+export function stopAnimation() {
+  if (!active) return;
+
+  active.fadeOut(0.2);
+  active = null;
+  currentAnimation = "";
 }
