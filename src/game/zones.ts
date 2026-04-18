@@ -35,6 +35,15 @@ const missionChecklistItems: Array<{ id: MissionId; label: string }> = [
   { id: "experienceAndes", label: "Universidad de los Andes Debugging" },
 ];
 
+const treasureChecklistItems = [
+  "Playwright",
+  "Cypress",
+  "AI",
+  "Postman",
+  "Pytest",
+  "Experience",
+];
+
 let currentZone: string | null = null;
 let finalMessageShown = false;
 
@@ -80,11 +89,33 @@ box-sizing:border-box;
 `;
 document.body.appendChild(missionChecklistUI);
 
+const treasureChecklistUI = document.createElement("div");
+treasureChecklistUI.style.cssText = `
+position:absolute;
+top:58px;
+right:10px;
+width:min(320px, calc(100vw - 32px));
+color:white;
+font-weight:bold;
+z-index:1000;
+box-sizing:border-box;
+`;
+document.body.appendChild(treasureChecklistUI);
+
 let missionChecklistOpen = false;
+let treasureChecklistOpen = false;
 
 function updateScoreUI() {
   scoreUI.innerText = `💎 ${collected.size}/${total} | 🚀 ${completedMissions.size}/${totalMissions} | ⭐ ${score}`;
   updateMissionChecklistUI();
+  updateTreasureChecklistUI();
+}
+
+function updateTreasureChecklistPosition() {
+  const gap = 8;
+  const top = missionChecklistUI.offsetTop + missionChecklistUI.offsetHeight + gap;
+
+  treasureChecklistUI.style.top = `${top}px`;
 }
 
 function updateMissionChecklistUI() {
@@ -144,6 +175,72 @@ function updateMissionChecklistUI() {
     toggle.onclick = () => {
       missionChecklistOpen = !missionChecklistOpen;
       updateMissionChecklistUI();
+      updateTreasureChecklistUI();
+    };
+  }
+
+  updateTreasureChecklistPosition();
+}
+
+function updateTreasureChecklistUI() {
+  updateTreasureChecklistPosition();
+
+  const items = treasureChecklistItems.map((treasure) => {
+    const isCollected = collected.has(treasure);
+
+    return `
+      <li style="display:flex;gap:8px;align-items:flex-start;margin:8px 0;line-height:1.25;">
+        <span>${isCollected ? "💎" : "⬜"}</span>
+        <span>${treasure} Island</span>
+      </li>
+    `;
+  }).join("");
+
+  treasureChecklistUI.innerHTML = `
+    <button
+      id="treasureChecklistToggle"
+      type="button"
+      aria-expanded="${treasureChecklistOpen}"
+      style="
+        width:100%;
+        border:1px solid white;
+        background:black;
+        color:white;
+        padding:8px 10px;
+        cursor:pointer;
+        text-align:left;
+        font-weight:bold;
+        border-radius:6px;
+      "
+    >
+      💎 Treasure Checklist ${treasureChecklistOpen ? "▲" : "▼"} ${collected.size}/${total}
+    </button>
+
+    <div
+      id="treasureChecklistContent"
+      style="
+        display:${treasureChecklistOpen ? "block" : "none"};
+        margin-top:6px;
+        background:black;
+        border:1px solid white;
+        padding:10px;
+        max-height:calc(100vh - 120px);
+        overflow:auto;
+        box-sizing:border-box;
+        border-radius:6px;
+      "
+    >
+      <ul style="list-style:none;margin:0;padding:0;font-size:13px;">
+        ${items}
+      </ul>
+    </div>
+  `;
+
+  const toggle = document.getElementById("treasureChecklistToggle");
+  if (toggle) {
+    toggle.onclick = () => {
+      treasureChecklistOpen = !treasureChecklistOpen;
+      updateTreasureChecklistUI();
     };
   }
 }
