@@ -25,6 +25,16 @@ type MissionId =
 const completedMissions = new Set<MissionId>();
 const totalMissions = 7;
 
+const missionChecklistItems: Array<{ id: MissionId; label: string }> = [
+  { id: "aiBugAnalysis", label: "AI Bug Analysis" },
+  { id: "aiTestPlan", label: "AI Test Plan" },
+  { id: "experienceGlobant", label: "CI&T Production Investigation" },
+  { id: "experienceCiandt", label: "Globant Automation Strategy" },
+  { id: "experienceScotiabank", label: "Scotiabank Backend Validation" },
+  { id: "experienceTcs", label: "Tata Consultancy Services Integration" },
+  { id: "experienceAndes", label: "Universidad de los Andes Debugging" },
+];
+
 let currentZone: string | null = null;
 let finalMessageShown = false;
 
@@ -57,10 +67,85 @@ z-index:1000;
 `;
 document.body.appendChild(scoreUI);
 
+const missionChecklistUI = document.createElement("div");
+missionChecklistUI.style.cssText = `
+position:absolute;
+top:10px;
+right:10px;
+width:min(320px, calc(100vw - 32px));
+color:white;
+font-weight:bold;
+z-index:1000;
+box-sizing:border-box;
+`;
+document.body.appendChild(missionChecklistUI);
 
+let missionChecklistOpen = false;
 
 function updateScoreUI() {
   scoreUI.innerText = `💎 ${collected.size}/${total} | 🚀 ${completedMissions.size}/${totalMissions} | ⭐ ${score}`;
+  updateMissionChecklistUI();
+}
+
+function updateMissionChecklistUI() {
+  const items = missionChecklistItems.map((mission) => {
+    const isCompleted = completedMissions.has(mission.id);
+
+    return `
+      <li style="display:flex;gap:8px;align-items:flex-start;margin:8px 0;line-height:1.25;">
+        <span>${isCompleted ? "✅" : "⬜"}</span>
+        <span>${mission.label}</span>
+      </li>
+    `;
+  }).join("");
+
+  missionChecklistUI.innerHTML = `
+    <button
+      id="missionChecklistToggle"
+      type="button"
+      aria-expanded="${missionChecklistOpen}"
+      style="
+        width:100%;
+        border:1px solid white;
+        background:black;
+        color:white;
+        padding:8px 10px;
+        cursor:pointer;
+        text-align:left;
+        font-weight:bold;
+        border-radius:6px;
+      "
+    >
+      🚀 Mission Checklist ${missionChecklistOpen ? "▲" : "▼"} ${completedMissions.size}/${totalMissions}
+    </button>
+
+    <div
+      id="missionChecklistContent"
+      style="
+        display:${missionChecklistOpen ? "block" : "none"};
+        margin-top:6px;
+        background:black;
+        border:1px solid white;
+        padding:10px;
+        max-height:calc(100vh - 72px);
+        overflow:auto;
+        box-sizing:border-box;
+        border-radius:6px;
+      "
+    >
+      <ul style="list-style:none;margin:0;padding:0;font-size:13px;">
+        ${items}
+      </ul>
+    </div>
+  `;
+
+  const toggle = document.getElementById("missionChecklistToggle");
+  if (toggle) {
+    toggle.onclick = () => {
+      missionChecklistOpen = !missionChecklistOpen;
+      updateMissionChecklistUI();
+    };
+  }
 }
 
 function completeMission(missionId: MissionId) {
