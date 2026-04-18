@@ -15,11 +15,11 @@ document.body.appendChild(renderer.domElement);
 
 let cameraYaw = 0;
 let cameraPitch = 0.46;
-let cameraDistance = 11.2;
+let cameraDistance = 9.4;
 let isDraggingCamera = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
-const cameraLookAtHeightOffset = 1.25;
+const cameraLookAtHeightOffset = 2.1;
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 

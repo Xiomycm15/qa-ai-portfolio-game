@@ -35,6 +35,7 @@ let expStep: ExpStep = "intro";
 
 let attempts = 0;
 const islandMixers: THREE.AnimationMixer[] = [];
+const experienceInteractionPoints: THREE.Vector3[] = [];
 
 // ======================
 // 🧾 SCORE UI
@@ -183,6 +184,7 @@ function createModelIsland(modelPath: string, x: number, z: number, fallbackColo
       group.add(model);
       group.updateMatrixWorld(true);
       registerModelColliders(model);
+      registerExperienceInteractionPoints(model);
     },
     undefined,
     () => {
@@ -205,6 +207,12 @@ function shouldRegisterCollider(name: string) {
   return !ignoredParts.some((part) => lowerName.includes(part));
 }
 
+function isBuildingNode(name: string) {
+  const lowerName = name.toLowerCase();
+
+  return lowerName.includes("building") || lowerName.includes("buildings");
+}
+
 function registerModelColliders(model: THREE.Object3D) {
   model.traverse((child) => {
     if (!(child instanceof THREE.Mesh) || !shouldRegisterCollider(child.name)) return;
@@ -217,6 +225,25 @@ function registerModelColliders(model: THREE.Object3D) {
     if (size.x > 2 || size.z > 2) return;
 
     registerBoxCollider(box, 0.05);
+  });
+}
+
+function registerExperienceInteractionPoints(model: THREE.Object3D) {
+  experienceInteractionPoints.length = 0;
+
+  model.traverse((child) => {
+    if (!(child instanceof THREE.Mesh) || !isBuildingNode(child.name)) return;
+
+    const box = new THREE.Box3().setFromObject(child);
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+
+    box.getSize(size);
+    box.getCenter(center);
+
+    if (size.x < 0.2 || size.z < 0.2) return;
+
+    experienceInteractionPoints.push(center);
   });
 }
 
@@ -233,7 +260,7 @@ const zones = [
   { mesh: createIsland(0xff3366, 0, -6), title: "AI" },
   { mesh: createIsland(0xffcc00, 8, 5), title: "Postman" },
   { mesh: createIsland(0x9933ff, -8, 5), title: "Pytest" },
-  { mesh: createModelIsland("/experience-island.glb", 0, 8, 0x00ffff, 9), title: "Experience", interactionRadius: 4.5 }
+  { mesh: createModelIsland("/experience-island.glb", 0, 8, 0x00ffff, 13), title: "Experience", interactionRadius: 2.4 }
 ];
 
 
@@ -1154,10 +1181,7 @@ export function checkZones() {
   let foundZone: string | null = null;
 
   for (const z of zones) {
-    const distance = player.position.distanceTo(z.mesh.position);
-    const interactionRadius = z.interactionRadius ?? 2;
-
-    if (distance < interactionRadius) {
+    if (isPlayerInsideZone(z)) {
       foundZone = z.title;
       break;
     }
@@ -1198,6 +1222,28 @@ if (foundZone === "AI") {
 
   // 🏝️ ZONA NORMAL
 showPanel(`<h2>${foundZone}</h2>`);
+}
+
+function distanceOnGround(a: THREE.Vector3, b: THREE.Vector3) {
+  const dx = a.x - b.x;
+  const dz = a.z - b.z;
+
+  return Math.sqrt(dx * dx + dz * dz);
+}
+
+function isPlayerInsideZone(zone: typeof zones[number]) {
+  const interactionRadius = zone.interactionRadius ?? 2;
+
+  if (zone.title !== "Experience") {
+    return distanceOnGround(player!.position, zone.mesh.position) < interactionRadius;
+  }
+
+  const isNearIslandCenter = distanceOnGround(player!.position, zone.mesh.position) < interactionRadius;
+  const isNearBuilding = experienceInteractionPoints.some((point) => (
+    distanceOnGround(player!.position, point) < 1.8
+  ));
+
+  return isNearIslandCenter || isNearBuilding;
 }
 
   // 🏝️ AI FUNCTION 
