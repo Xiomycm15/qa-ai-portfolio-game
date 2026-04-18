@@ -35,7 +35,13 @@ let expStep: ExpStep = "intro";
 
 let attempts = 0;
 const islandMixers: THREE.AnimationMixer[] = [];
-const experienceInteractionPoints: THREE.Vector3[] = [];
+
+type ExperienceLogoMission = "ciandt" | "globant" | "scotiabank" | "tcs" | "andes";
+
+const experienceLogoInteractionPoints: Array<{
+  mission: ExperienceLogoMission;
+  position: THREE.Vector3;
+}> = [];
 
 // ======================
 // 🧾 SCORE UI
@@ -184,7 +190,7 @@ function createModelIsland(modelPath: string, x: number, z: number, fallbackColo
       group.add(model);
       group.updateMatrixWorld(true);
       registerModelColliders(model);
-      registerExperienceInteractionPoints(model);
+      registerExperienceLogoInteractionPoints(model);
     },
     undefined,
     () => {
@@ -207,12 +213,6 @@ function shouldRegisterCollider(name: string) {
   return !ignoredParts.some((part) => lowerName.includes(part));
 }
 
-function isBuildingNode(name: string) {
-  const lowerName = name.toLowerCase();
-
-  return lowerName.includes("building") || lowerName.includes("buildings");
-}
-
 function registerModelColliders(model: THREE.Object3D) {
   model.traverse((child) => {
     if (!(child instanceof THREE.Mesh) || !shouldRegisterCollider(child.name)) return;
@@ -228,22 +228,32 @@ function registerModelColliders(model: THREE.Object3D) {
   });
 }
 
-function registerExperienceInteractionPoints(model: THREE.Object3D) {
-  experienceInteractionPoints.length = 0;
+function getLogoMission(name: string): ExperienceLogoMission | null {
+  const lowerName = name.toLowerCase();
+
+  if (lowerName.includes("logo_ciandt")) return "ciandt";
+  if (lowerName.includes("logo_globant")) return "globant";
+  if (lowerName.includes("logo_scotiabank")) return "scotiabank";
+  if (lowerName.includes("logo_tata")) return "tcs";
+  if (lowerName.includes("logo_uniandes")) return "andes";
+
+  return null;
+}
+
+function registerExperienceLogoInteractionPoints(model: THREE.Object3D) {
+  experienceLogoInteractionPoints.length = 0;
 
   model.traverse((child) => {
-    if (!(child instanceof THREE.Mesh) || !isBuildingNode(child.name)) return;
+    if (!(child instanceof THREE.Mesh)) return;
+
+    const mission = getLogoMission(child.name);
+    if (!mission) return;
 
     const box = new THREE.Box3().setFromObject(child);
-    const size = new THREE.Vector3();
     const center = new THREE.Vector3();
-
-    box.getSize(size);
     box.getCenter(center);
 
-    if (size.x < 0.2 || size.z < 0.2) return;
-
-    experienceInteractionPoints.push(center);
+    experienceLogoInteractionPoints.push({ mission, position: center });
   });
 }
 
@@ -1179,9 +1189,17 @@ export function checkZones() {
   if (!player) return;
 
   let foundZone: string | null = null;
+  let foundExperienceMission: ExperienceLogoMission | null = null;
 
   for (const z of zones) {
-    if (isPlayerInsideZone(z)) {
+    if (z.title === "Experience") {
+      foundExperienceMission = getNearbyExperienceLogoMission(player.position);
+
+      if (foundExperienceMission) {
+        foundZone = `Experience:${foundExperienceMission}`;
+        break;
+      }
+    } else if (isPlayerInsideZone(z)) {
       foundZone = z.title;
       break;
     }
@@ -1201,8 +1219,10 @@ export function checkZones() {
   currentZone = foundZone;
 
   // 🎯 SCORE
-  if (!collected.has(foundZone)) {
-    collected.add(foundZone);
+  const collectedZone = foundZone.startsWith("Experience:") ? "Experience" : foundZone;
+
+  if (!collected.has(collectedZone)) {
+    collected.add(collectedZone);
     score += 1000;
     updateScoreUI();
 
@@ -1210,8 +1230,8 @@ export function checkZones() {
   }
 
   // 🎮 EXPERIENCE
-if (foundZone === "Experience") {
-  renderExperiencePanel();
+if (foundExperienceMission) {
+  renderExperienceLogoMission(foundExperienceMission);
   return;
 }
 
@@ -1238,12 +1258,42 @@ function isPlayerInsideZone(zone: typeof zones[number]) {
     return distanceOnGround(player!.position, zone.mesh.position) < interactionRadius;
   }
 
-  const isNearIslandCenter = distanceOnGround(player!.position, zone.mesh.position) < interactionRadius;
-  const isNearBuilding = experienceInteractionPoints.some((point) => (
-    distanceOnGround(player!.position, point) < 1.8
+  return Boolean(getNearbyExperienceLogoMission(player!.position));
+}
+
+function getNearbyExperienceLogoMission(position: THREE.Vector3): ExperienceLogoMission | null {
+  const logoInteractionRadius = 2;
+
+  const nearbyLogo = experienceLogoInteractionPoints.find((logo) => (
+    distanceOnGround(position, logo.position) < logoInteractionRadius
   ));
 
-  return isNearIslandCenter || isNearBuilding;
+  return nearbyLogo?.mission ?? null;
+}
+
+function renderExperienceLogoMission(mission: ExperienceLogoMission) {
+  if (mission === "ciandt") {
+    expStep = "investigation";
+    renderExperiencePanel();
+    return;
+  }
+
+  if (mission === "globant") {
+    renderCiandtMission();
+    return;
+  }
+
+  if (mission === "scotiabank") {
+    renderScotiabankMission();
+    return;
+  }
+
+  if (mission === "tcs") {
+    renderTcsMission();
+    return;
+  }
+
+  renderAndesMission();
 }
 
   // 🏝️ AI FUNCTION 
