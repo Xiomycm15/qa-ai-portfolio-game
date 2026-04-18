@@ -3,6 +3,7 @@ import { scene } from './scene';
 import { player } from './player';
 import { showPanel, hidePanel } from "../ui/panel";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { registerBoxCollider } from './collisions';
 
 
 // ======================
@@ -180,6 +181,8 @@ function createModelIsland(modelPath: string, x: number, z: number, fallbackColo
       model.position.y += -0.5 - centeredBox.min.y;
 
       group.add(model);
+      group.updateMatrixWorld(true);
+      registerModelColliders(model);
     },
     undefined,
     () => {
@@ -195,6 +198,28 @@ function createModelIsland(modelPath: string, x: number, z: number, fallbackColo
   return group;
 }
 
+function shouldRegisterCollider(name: string) {
+  const lowerName = name.toLowerCase();
+  const ignoredParts = ["floor", "grass", "water", "logo", "window", "highway", "sand"];
+
+  return !ignoredParts.some((part) => lowerName.includes(part));
+}
+
+function registerModelColliders(model: THREE.Object3D) {
+  model.traverse((child) => {
+    if (!(child instanceof THREE.Mesh) || !shouldRegisterCollider(child.name)) return;
+
+    const box = new THREE.Box3().setFromObject(child);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+
+    if (size.x < 0.2 || size.z < 0.2) return;
+    if (size.x > 2 || size.z > 2) return;
+
+    registerBoxCollider(box, 0.05);
+  });
+}
+
 export function updateZoneAnimations(delta: number) {
   islandMixers.forEach((mixer) => mixer.update(delta));
 }
@@ -208,7 +233,7 @@ const zones = [
   { mesh: createIsland(0xff3366, 0, -6), title: "AI" },
   { mesh: createIsland(0xffcc00, 8, 5), title: "Postman" },
   { mesh: createIsland(0x9933ff, -8, 5), title: "Pytest" },
-  { mesh: createModelIsland("/experience-island.glb", 0, 8, 0x00ffff, 9), title: "Experience" }
+  { mesh: createModelIsland("/experience-island.glb", 0, 8, 0x00ffff, 9), title: "Experience", interactionRadius: 4.5 }
 ];
 
 
@@ -1130,8 +1155,9 @@ export function checkZones() {
 
   for (const z of zones) {
     const distance = player.position.distanceTo(z.mesh.position);
+    const interactionRadius = z.interactionRadius ?? 2;
 
-    if (distance < 2) {
+    if (distance < interactionRadius) {
       foundZone = z.title;
       break;
     }

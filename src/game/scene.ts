@@ -19,6 +19,7 @@ let cameraDistance = 11.2;
 let isDraggingCamera = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
+const cameraLookAtHeightOffset = 1.25;
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
@@ -95,9 +96,11 @@ scene.add(new THREE.Points(geo,new THREE.PointsMaterial({color:0xffffff,size:0.5
 export function updateCamera(p:THREE.Vector3){
   const horizontalDistance = Math.cos(cameraPitch) * cameraDistance;
   const target = p.clone();
+  const lookAtTarget = p.clone();
+  lookAtTarget.y += cameraLookAtHeightOffset;
 
   camera.position.x = target.x + Math.sin(cameraYaw) * horizontalDistance;
   camera.position.y = target.y + Math.sin(cameraPitch) * cameraDistance;
   camera.position.z = target.z + Math.cos(cameraYaw) * horizontalDistance;
-  camera.lookAt(target);
+  camera.lookAt(lookAtTarget);
 }

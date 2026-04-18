@@ -1,5 +1,6 @@
 import { player } from './player';
 import { playAnimation, stopAnimation } from './player';
+import { collidesWithWorldObstacles } from './collisions';
 
 const keys: Record<string, boolean> = {};
 let canMove = false;
@@ -32,28 +33,35 @@ export function updateControls() {
 
   let moving = false;
 
+  function tryMove(dx: number, dz: number) {
+    const nextPosition = player!.position.clone();
+    nextPosition.x += dx;
+    nextPosition.z += dz;
+
+    if (collidesWithWorldObstacles(nextPosition)) return false;
+
+    player!.position.copy(nextPosition);
+    return true;
+  }
+
   if (intent.up) {
-    player.position.z -= s;
     player.rotation.y = Math.PI;
-    moving = true;
+    moving = tryMove(0, -s) || moving;
   }
 
   if (intent.down) {
-    player.position.z += s;
     player.rotation.y = 0;
-    moving = true;
+    moving = tryMove(0, s) || moving;
   }
 
   if (intent.left) {
-    player.position.x += s;
     player.rotation.y = Math.PI / 2;
-    moving = true;
+    moving = tryMove(s, 0) || moving;
   }
 
   if (intent.right) {
-    player.position.x -= s;
     player.rotation.y = -Math.PI / 2;
-    moving = true;
+    moving = tryMove(-s, 0) || moving;
   }
 
   if (moving) {

@@ -6,14 +6,14 @@ export function getPanel() {
 
     panel.style.cssText = `
       position:absolute;
-      top:50%;
+      top:24px;
       left:50%;
-      transform:translate(-50%,-50%);
+      transform:translateX(-50%);
       background:black;
       color:white;
       padding:20px 48px 20px 20px;
       width:min(720px, calc(100vw - 32px));
-      max-height:calc(100vh - 32px);
+      max-height:calc(100vh - 48px);
       overflow:auto;
       display:none;
       z-index:999;
