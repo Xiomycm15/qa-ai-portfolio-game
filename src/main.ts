@@ -4,15 +4,19 @@ import {
   camera,
   updateCamera,
   ocean,
-  showGameWorld,
+  showAIWorld,
+  showExperienceWorld,
   showIntroCamera,
+  showIntroWorld,
   showMapCamera,
+  showProjectsWorld,
   startGameplayCameraTransition,
   isGameplayCameraTransitionDone
 } from './game/scene';
 import { player, mixer } from './game/player';
 import { updateControls, setCanMove } from './game/controls';
-import { checkZones, setGameHUDVisible, updateZoneAnimations } from './game/zones';
+import { checkZones, setActiveWorld, setGameHUDVisible, updateZoneAnimations } from './game/zones';
+import type { GameWorldId } from './game/zones';
 import { updateIntroWorld } from './game/introWorld';
 
 // ================= INTRO =================
@@ -21,7 +25,11 @@ const intro = document.createElement("div");
 intro.innerHTML = `
 <h1>QA Mind World 🎮</h1>
 <p>Explore islands and collect treasures 💎</p>
-<button id="startBtn">Start</button>
+<div style="display:grid;gap:8px;">
+  <button id="experienceStartBtn">Experience Island</button>
+  <button id="projectsStartBtn">Projects Island</button>
+  <button id="aiStartBtn">AI Island</button>
+</div>
 `;
 
 intro.style.cssText = `
@@ -34,23 +42,68 @@ color:white;
 padding:20px;
 z-index:1000;
 text-align:center;
+min-width:260px;
 `;
 
 document.body.appendChild(intro);
+
+const worldMenuButton = document.createElement("button");
+worldMenuButton.textContent = "World menu";
+worldMenuButton.style.cssText = `
+position:absolute;
+top:42px;
+left:10px;
+z-index:1000;
+display:none;
+`;
+document.body.appendChild(worldMenuButton);
 
 let gameStarted = false;
 let movementEnabled = false;
 setGameHUDVisible(false);
 
-document.getElementById("startBtn")!.onclick = () => {
+function getStartPosition(world: GameWorldId) {
+  if (world === "experience") return { x: 0, y: 1, z: 12 };
+  if (world === "projects") return { x: 0, y: 1, z: 3 };
+
+  return { x: 0, y: 1, z: -9 };
+}
+
+function startWorld(world: GameWorldId) {
   intro.style.display = "none";
+  worldMenuButton.style.display = "block";
   gameStarted = true;
   movementEnabled = false;
   setCanMove(false);
   setGameHUDVisible(true);
-  showGameWorld();
+  setActiveWorld(world);
+
+  if (player) {
+    const startPosition = getStartPosition(world);
+    player.position.set(startPosition.x, startPosition.y, startPosition.z);
+  }
+
+  if (world === "experience") showExperienceWorld();
+  if (world === "projects") showProjectsWorld();
+  if (world === "ai") showAIWorld();
+
   showMapCamera();
   startGameplayCameraTransition();
+}
+
+document.getElementById("experienceStartBtn")!.onclick = () => startWorld("experience");
+document.getElementById("projectsStartBtn")!.onclick = () => startWorld("projects");
+document.getElementById("aiStartBtn")!.onclick = () => startWorld("ai");
+
+worldMenuButton.onclick = () => {
+  intro.style.display = "block";
+  worldMenuButton.style.display = "none";
+  gameStarted = false;
+  movementEnabled = false;
+  setCanMove(false);
+  setGameHUDVisible(false);
+  setActiveWorld(null);
+  showIntroWorld();
 };
 
 // ================= LOOP =================

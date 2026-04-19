@@ -5,9 +5,18 @@ scene.background = new THREE.Color(0x7b2cbf);
 
 export const introWorld = new THREE.Group();
 export const gameWorld = new THREE.Group();
+export const experienceWorld = new THREE.Group();
+export const projectsWorld = new THREE.Group();
+export const aiWorld = new THREE.Group();
 scene.add(introWorld);
 scene.add(gameWorld);
+gameWorld.add(experienceWorld);
+gameWorld.add(projectsWorld);
+gameWorld.add(aiWorld);
 gameWorld.visible = false;
+experienceWorld.visible = false;
+projectsWorld.visible = false;
+aiWorld.visible = false;
 
 export const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 camera.position.set(0,6,10);
@@ -131,6 +140,27 @@ export function showIntroWorld() {
 export function showGameWorld() {
   introWorld.visible = false;
   gameWorld.visible = true;
+}
+
+export function showExperienceWorld() {
+  showGameWorld();
+  experienceWorld.visible = true;
+  projectsWorld.visible = false;
+  aiWorld.visible = false;
+}
+
+export function showProjectsWorld() {
+  showGameWorld();
+  experienceWorld.visible = false;
+  projectsWorld.visible = true;
+  aiWorld.visible = false;
+}
+
+export function showAIWorld() {
+  showGameWorld();
+  experienceWorld.visible = false;
+  projectsWorld.visible = false;
+  aiWorld.visible = true;
 }
 
 export function startGameplayCameraTransition() {

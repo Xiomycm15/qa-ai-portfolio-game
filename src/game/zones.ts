@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { gameWorld } from './scene';
+import { aiWorld, experienceWorld, projectsWorld } from './scene';
 import { player } from './player';
 import { showPanel, hidePanel } from "../ui/panel";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { registerBoxCollider, registerCircleCollider } from './collisions';
+import { registerBoxCollider, registerCircleCollider, setActiveCollisionWorld } from './collisions';
 
 
 // ======================
@@ -62,6 +62,9 @@ const gltfLoader = new GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
 
 type ExperienceLogoMission = "ciandt" | "globant" | "scotiabank" | "tcs" | "andes";
+export type GameWorldId = "experience" | "projects" | "ai";
+
+let activeWorld: GameWorldId | null = null;
 
 const experienceLogoInteractionPoints: Array<{
   mission: ExperienceLogoMission;
@@ -117,6 +120,13 @@ export function setGameHUDVisible(visible: boolean) {
   scoreUI.style.display = display;
   missionChecklistUI.style.display = display;
   treasureChecklistUI.style.display = display;
+}
+
+export function setActiveWorld(world: GameWorldId | null) {
+  activeWorld = world;
+  setActiveCollisionWorld(world);
+  currentZone = null;
+  hidePanel();
 }
 
 function updateScoreUI() {
@@ -342,16 +352,18 @@ function createModelIsland(
   z: number,
   fallbackColor: number,
   targetSize = 6,
+  parentWorld: THREE.Group,
+  world: GameWorldId,
   titleModelPath?: string,
   registerLogoInteractions = false,
   rigidBodyRadius = 0
 ) {
   const group = new THREE.Group();
   group.position.set(x, 1, z);
-  gameWorld.add(group);
+  parentWorld.add(group);
 
   if (rigidBodyRadius > 0) {
-    registerCircleCollider(group.position, rigidBodyRadius);
+    registerCircleCollider(group.position, rigidBodyRadius, world);
   }
 
   gltfLoader.load(
@@ -388,7 +400,7 @@ function createModelIsland(
 
       group.add(model);
       group.updateMatrixWorld(true);
-      registerModelColliders(model);
+      registerModelColliders(model, world);
 
       if (registerLogoInteractions) {
         registerExperienceLogoInteractionPoints(model);
@@ -445,7 +457,7 @@ function shouldRegisterCollider(name: string) {
   return !ignoredParts.some((part) => lowerName.includes(part));
 }
 
-function registerModelColliders(model: THREE.Object3D) {
+function registerModelColliders(model: THREE.Object3D, world: GameWorldId) {
   model.traverse((child) => {
     if (!(child instanceof THREE.Mesh) || !shouldRegisterCollider(child.name)) return;
 
@@ -456,7 +468,7 @@ function registerModelColliders(model: THREE.Object3D) {
     if (size.x < 0.2 || size.z < 0.2) return;
     if (size.x > 2 || size.z > 2) return;
 
-    registerBoxCollider(box, 0.05);
+    registerBoxCollider(box, 0.05, world);
   });
 }
 
@@ -497,12 +509,12 @@ export function updateZoneAnimations(delta: number) {
 // 🌍 ZONES
 // ======================
 const zones = [
-  { mesh: createModelIsland("/playwright-island.glb", 12, -2, 0x3366ff, 7, undefined, false, 2.55), title: "Playwright", interactionRadius: 3.4 },
-  { mesh: createModelIsland("/cypress-island.glb", -12, -2, 0x00ff66, 7, undefined, false, 2.55), title: "Cypress", interactionRadius: 3.4 },
-  { mesh: createModelIsland("/AI-island.glb", 0, -14, 0xff3366, 7, undefined, false, 2.55), title: "AI", interactionRadius: 3.4 },
-  { mesh: createModelIsland("/postman-island.glb", 15, 10, 0xffcc00, 7, undefined, false, 2.55), title: "Postman", interactionRadius: 3.4 },
-  { mesh: createModelIsland("/pytest-island.glb", -15, 10, 0x9933ff, 7, undefined, false, 2.55), title: "Pytest", interactionRadius: 3.4 },
-  { mesh: createModelIsland("/experience-island.glb", 0, 18, 0x00ffff, 13, "/experience-island-title.glb", true), title: "Experience", interactionRadius: 2.4 }
+  { mesh: createModelIsland("/playwright-island.glb", 12, -2, 0x3366ff, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Playwright", world: "projects", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/cypress-island.glb", -12, -2, 0x00ff66, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Cypress", world: "projects", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/AI-island.glb", 0, -14, 0xff3366, 7, aiWorld, "ai", undefined, false, 2.55), title: "AI", world: "ai", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/postman-island.glb", 15, 10, 0xffcc00, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Postman", world: "projects", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/pytest-island.glb", -15, 10, 0x9933ff, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Pytest", world: "projects", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/experience-island.glb", 0, 18, 0x00ffff, 13, experienceWorld, "experience", "/experience-island-title.glb", true), title: "Experience", world: "experience", interactionRadius: 2.4 }
 ];
 
 
@@ -1418,12 +1430,14 @@ function renderExperiencePanel() {
 // 🎯 MAIN
 // ======================
 export function checkZones() {
-  if (!player) return;
+  if (!player || !activeWorld) return;
 
   let foundZone: string | null = null;
   let foundExperienceMission: ExperienceLogoMission | null = null;
 
   for (const z of zones) {
+    if (z.world !== activeWorld) continue;
+
     if (z.title === "Experience") {
       foundExperienceMission = getNearbyExperienceLogoMission(player.position);
 
