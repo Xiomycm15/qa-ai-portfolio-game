@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x050d1a);
+scene.background = new THREE.Color(0x7b2cbf);
 
 export const introWorld = new THREE.Group();
 export const gameWorld = new THREE.Group();
@@ -26,7 +26,7 @@ let isDraggingCamera = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
 const cameraLookAtHeightOffset = 2.1;
-const introCameraPosition = new THREE.Vector3(0, 5.8, 9);
+const introCameraPosition = new THREE.Vector3(0, 2.9, 4.1);
 const introCameraTarget = new THREE.Vector3(0, 2.2, 0);
 const mapCameraPosition = new THREE.Vector3(0, 30.4, 28.8);
 const mapCameraTarget = new THREE.Vector3(0, 0, 2);
@@ -81,6 +81,13 @@ scene.add(light);
 
 scene.add(new THREE.AmbientLight(0xffffff,0.5));
 
+const introFloor = new THREE.Mesh(
+  new THREE.PlaneGeometry(80, 80),
+  new THREE.MeshStandardMaterial({ color: 0x4b148c, roughness: 0.7 })
+);
+introFloor.rotation.x = -Math.PI / 2;
+introWorld.add(introFloor);
+
 // océano
 export const ocean = new THREE.Mesh(
   new THREE.PlaneGeometry(200,200),
@@ -92,7 +99,7 @@ gameWorld.add(ocean);
 // cielo
 scene.add(new THREE.Mesh(
   new THREE.SphereGeometry(100,32,32),
-  new THREE.MeshBasicMaterial({color:0x050d1a, side:THREE.BackSide})
+  new THREE.MeshBasicMaterial({color:0x7b2cbf, side:THREE.BackSide})
 ));
 
 // estrellas
