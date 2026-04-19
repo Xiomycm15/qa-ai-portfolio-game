@@ -4,13 +4,16 @@ import {
   camera,
   updateCamera,
   ocean,
+  showGameWorld,
+  showIntroCamera,
   showMapCamera,
   startGameplayCameraTransition,
   isGameplayCameraTransitionDone
 } from './game/scene';
 import { player, mixer } from './game/player';
 import { updateControls, setCanMove } from './game/controls';
-import { checkZones, updateZoneAnimations } from './game/zones';
+import { checkZones, setGameHUDVisible, updateZoneAnimations } from './game/zones';
+import { updateIntroWorld } from './game/introWorld';
 
 // ================= INTRO =================
 const intro = document.createElement("div");
@@ -23,25 +26,30 @@ intro.innerHTML = `
 
 intro.style.cssText = `
 position:absolute;
-top:50%;
+top:32px;
 left:50%;
-transform:translate(-50%,-50%);
+transform:translateX(-50%);
 background:black;
 color:white;
 padding:20px;
 z-index:1000;
+text-align:center;
 `;
 
 document.body.appendChild(intro);
 
 let gameStarted = false;
 let movementEnabled = false;
+setGameHUDVisible(false);
 
 document.getElementById("startBtn")!.onclick = () => {
   intro.style.display = "none";
   gameStarted = true;
   movementEnabled = false;
   setCanMove(false);
+  setGameHUDVisible(true);
+  showGameWorld();
+  showMapCamera();
   startGameplayCameraTransition();
 };
 
@@ -60,15 +68,18 @@ function animate() {
         setCanMove(true);
       }
     } else {
-      showMapCamera();
+      showIntroCamera();
     }
   }
 
   // animación avatar e islas
   if (mixer) mixer.update(0.016);
+  updateIntroWorld(0.016);
   updateZoneAnimations(0.016);
 
-  checkZones();
+  if (gameStarted) {
+    checkZones();
+  }
 
   // 🌊 evitar crash si ocean no existe
   if (ocean) {

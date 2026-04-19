@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { scene } from './scene';
+import { gameWorld } from './scene';
 import { player } from './player';
 import { showPanel, hidePanel } from "../ui/panel";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { registerBoxCollider } from './collisions';
+import { registerBoxCollider, registerCircleCollider } from './collisions';
 
 
 // ======================
@@ -110,6 +110,14 @@ document.body.appendChild(treasureChecklistUI);
 
 let missionChecklistOpen = false;
 let treasureChecklistOpen = false;
+
+export function setGameHUDVisible(visible: boolean) {
+  const display = visible ? "block" : "none";
+
+  scoreUI.style.display = display;
+  missionChecklistUI.style.display = display;
+  treasureChecklistUI.style.display = display;
+}
 
 function updateScoreUI() {
   scoreUI.innerText = `💎 ${collected.size}/${total} | 🚀 ${completedMissions.size}/${totalMissions} | ⭐ ${score}`;
@@ -335,11 +343,16 @@ function createModelIsland(
   fallbackColor: number,
   targetSize = 6,
   titleModelPath?: string,
-  registerLogoInteractions = false
+  registerLogoInteractions = false,
+  rigidBodyRadius = 0
 ) {
   const group = new THREE.Group();
   group.position.set(x, 1, z);
-  scene.add(group);
+  gameWorld.add(group);
+
+  if (rigidBodyRadius > 0) {
+    registerCircleCollider(group.position, rigidBodyRadius);
+  }
 
   gltfLoader.load(
     modelPath,
@@ -484,11 +497,11 @@ export function updateZoneAnimations(delta: number) {
 // 🌍 ZONES
 // ======================
 const zones = [
-  { mesh: createModelIsland("/playwright-island.glb", 12, -2, 0x3366ff, 7), title: "Playwright", interactionRadius: 3 },
-  { mesh: createModelIsland("/cypress-island.glb", -12, -2, 0x00ff66, 7), title: "Cypress", interactionRadius: 3 },
-  { mesh: createModelIsland("/AI-island.glb", 0, -14, 0xff3366, 7), title: "AI", interactionRadius: 3 },
-  { mesh: createModelIsland("/postman-island.glb", 15, 10, 0xffcc00, 7), title: "Postman", interactionRadius: 3 },
-  { mesh: createModelIsland("/pytest-island.glb", -15, 10, 0x9933ff, 7), title: "Pytest", interactionRadius: 3 },
+  { mesh: createModelIsland("/playwright-island.glb", 12, -2, 0x3366ff, 7, undefined, false, 2.55), title: "Playwright", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/cypress-island.glb", -12, -2, 0x00ff66, 7, undefined, false, 2.55), title: "Cypress", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/AI-island.glb", 0, -14, 0xff3366, 7, undefined, false, 2.55), title: "AI", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/postman-island.glb", 15, 10, 0xffcc00, 7, undefined, false, 2.55), title: "Postman", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/pytest-island.glb", -15, 10, 0x9933ff, 7, undefined, false, 2.55), title: "Pytest", interactionRadius: 3.4 },
   { mesh: createModelIsland("/experience-island.glb", 0, 18, 0x00ffff, 13, "/experience-island-title.glb", true), title: "Experience", interactionRadius: 2.4 }
 ];
 

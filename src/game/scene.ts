@@ -3,6 +3,12 @@ import * as THREE from 'three';
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050d1a);
 
+export const introWorld = new THREE.Group();
+export const gameWorld = new THREE.Group();
+scene.add(introWorld);
+scene.add(gameWorld);
+gameWorld.visible = false;
+
 export const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 camera.position.set(0,6,10);
 
@@ -20,6 +26,8 @@ let isDraggingCamera = false;
 let lastPointerX = 0;
 let lastPointerY = 0;
 const cameraLookAtHeightOffset = 2.1;
+const introCameraPosition = new THREE.Vector3(0, 5.8, 9);
+const introCameraTarget = new THREE.Vector3(0, 2.2, 0);
 const mapCameraPosition = new THREE.Vector3(0, 30.4, 28.8);
 const mapCameraTarget = new THREE.Vector3(0, 0, 2);
 const cameraTransitionStart = new THREE.Vector3();
@@ -79,7 +87,7 @@ export const ocean = new THREE.Mesh(
   new THREE.MeshStandardMaterial({color:0x0f3057, roughness:0.3, metalness:0.8})
 );
 ocean.rotation.x = -Math.PI/2;
-scene.add(ocean);
+gameWorld.add(ocean);
 
 // cielo
 scene.add(new THREE.Mesh(
@@ -94,12 +102,28 @@ for(let i=0;i<1000;i++){
   pos.push((Math.random()-0.5)*200, Math.random()*100, (Math.random()-0.5)*200);
 }
 geo.setAttribute('position', new THREE.Float32BufferAttribute(pos,3));
-scene.add(new THREE.Points(geo,new THREE.PointsMaterial({color:0xffffff,size:0.5})));
+gameWorld.add(new THREE.Points(geo,new THREE.PointsMaterial({color:0xffffff,size:0.5})));
 
 // core
+export function showIntroCamera() {
+  camera.position.copy(introCameraPosition);
+  camera.lookAt(introCameraTarget);
+}
+
 export function showMapCamera() {
   camera.position.copy(mapCameraPosition);
   camera.lookAt(mapCameraTarget);
+}
+
+export function showIntroWorld() {
+  introWorld.visible = true;
+  gameWorld.visible = false;
+  showIntroCamera();
+}
+
+export function showGameWorld() {
+  introWorld.visible = false;
+  gameWorld.visible = true;
 }
 
 export function startGameplayCameraTransition() {
@@ -133,4 +157,4 @@ export function updateCamera(p:THREE.Vector3){
   camera.lookAt(lookAtTarget);
 }
 
-showMapCamera();
+showIntroWorld();

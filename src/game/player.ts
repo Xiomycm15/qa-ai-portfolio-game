@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { renderer, scene } from './scene';
+import { gameWorld, renderer } from './scene';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export let player: THREE.Object3D | null = null;
@@ -16,7 +16,7 @@ new GLTFLoader().load('/avatar.glb', (gltf) => {
   optimizeAvatarMaterials(player);
   player.scale.setScalar(0.5);
   player.position.set(0, 1, 0);
-  scene.add(player);
+  gameWorld.add(player);
 
   mixer = new THREE.AnimationMixer(player);
 
