@@ -88,8 +88,8 @@ document.body.appendChild(scoreUI);
 const missionChecklistUI = document.createElement("div");
 missionChecklistUI.style.cssText = `
 position:absolute;
-top:10px;
-right:10px;
+top:86px;
+left:10px;
 width:min(320px, calc(100vw - 32px));
 color:white;
 font-weight:bold;
@@ -101,8 +101,8 @@ document.body.appendChild(missionChecklistUI);
 const treasureChecklistUI = document.createElement("div");
 treasureChecklistUI.style.cssText = `
 position:absolute;
-top:58px;
-right:10px;
+top:134px;
+left:10px;
 width:min(320px, calc(100vw - 32px));
 color:white;
 font-weight:bold;
