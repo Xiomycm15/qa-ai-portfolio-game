@@ -63,7 +63,7 @@ let movementEnabled = false;
 setGameHUDVisible(false);
 
 function getStartPosition(world: GameWorldId) {
-  if (world === "experience") return { x: 0, y: 1, z: 12 };
+  if (world === "experience") return { x: 0, y: 1, z: 24 };
   if (world === "projects") return { x: 0, y: 1, z: 3 };
 
   return { x: 0, y: 1, z: -9 };

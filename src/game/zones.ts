@@ -1508,13 +1508,17 @@ function isPlayerInsideZone(zone: typeof zones[number]) {
 }
 
 function getNearbyExperienceLogoMission(position: THREE.Vector3): ExperienceLogoMission | null {
-  const logoInteractionRadius = 2;
-
   const nearbyLogo = experienceLogoInteractionPoints.find((logo) => (
-    distanceOnGround(position, logo.position) < logoInteractionRadius
+    distanceOnGround(position, logo.position) < getExperienceLogoInteractionRadius(logo.mission)
   ));
 
   return nearbyLogo?.mission ?? null;
+}
+
+function getExperienceLogoInteractionRadius(mission: ExperienceLogoMission) {
+  if (mission === "andes") return 4.8;
+
+  return 2;
 }
 
 function renderExperienceLogoMission(mission: ExperienceLogoMission) {
