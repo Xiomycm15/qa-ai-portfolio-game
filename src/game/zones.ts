@@ -3,6 +3,7 @@ import { scene } from './scene';
 import { player } from './player';
 import { showPanel, hidePanel } from "../ui/panel";
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { registerBoxCollider } from './collisions';
 
 
@@ -54,6 +55,11 @@ let expStep: ExpStep = "intro";
 
 let attempts = 0;
 const islandMixers: THREE.AnimationMixer[] = [];
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath("/draco/");
+
+const gltfLoader = new GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
 
 type ExperienceLogoMission = "ciandt" | "globant" | "scotiabank" | "tcs" | "andes";
 
@@ -322,22 +328,20 @@ function showFinalMessage() {
 // ======================
 // 🏝️ ISLAND
 // ======================
-function createIsland(color: number, x: number, z: number) {
-  const m = new THREE.Mesh(
-    new THREE.CylinderGeometry(3, 3, 1, 32),
-    new THREE.MeshStandardMaterial({ color })
-  );
-  m.position.set(x, 1, z);
-  scene.add(m);
-  return m;
-}
-
-function createModelIsland(modelPath: string, x: number, z: number, fallbackColor: number, targetSize = 6) {
+function createModelIsland(
+  modelPath: string,
+  x: number,
+  z: number,
+  fallbackColor: number,
+  targetSize = 6,
+  titleModelPath?: string,
+  registerLogoInteractions = false
+) {
   const group = new THREE.Group();
   group.position.set(x, 1, z);
   scene.add(group);
 
-  new GLTFLoader().load(
+  gltfLoader.load(
     modelPath,
     (gltf) => {
       const model = gltf.scene;
@@ -372,7 +376,15 @@ function createModelIsland(modelPath: string, x: number, z: number, fallbackColo
       group.add(model);
       group.updateMatrixWorld(true);
       registerModelColliders(model);
-      registerExperienceLogoInteractionPoints(model);
+
+      if (registerLogoInteractions) {
+        registerExperienceLogoInteractionPoints(model);
+      }
+
+      if (titleModelPath) {
+        const finalIslandBox = new THREE.Box3().setFromObject(model);
+        loadIslandTitle(titleModelPath, group, targetSize * 0.44, finalIslandBox.max.y + 1);
+      }
     },
     undefined,
     () => {
@@ -386,6 +398,31 @@ function createModelIsland(modelPath: string, x: number, z: number, fallbackColo
   );
 
   return group;
+}
+
+function loadIslandTitle(modelPath: string, parent: THREE.Group, targetSize: number, y: number) {
+  gltfLoader.load(modelPath, (gltf) => {
+    const title = gltf.scene;
+    const box = new THREE.Box3().setFromObject(title);
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+
+    box.getSize(size);
+    box.getCenter(center);
+
+    const maxDimension = Math.max(size.x, size.y, size.z);
+    const scale = maxDimension > 0 ? targetSize / maxDimension : 1;
+    title.scale.setScalar(scale);
+
+    const scaledBox = new THREE.Box3().setFromObject(title);
+    const scaledCenter = new THREE.Vector3();
+    scaledBox.getCenter(scaledCenter);
+
+    title.position.sub(scaledCenter);
+    title.position.y += y;
+
+    parent.add(title);
+  });
 }
 
 function shouldRegisterCollider(name: string) {
@@ -447,12 +484,12 @@ export function updateZoneAnimations(delta: number) {
 // 🌍 ZONES
 // ======================
 const zones = [
-  { mesh: createIsland(0x3366ff, 12, -2), title: "Playwright" },
-  { mesh: createIsland(0x00ff66, -12, -2), title: "Cypress" },
-  { mesh: createIsland(0xff3366, 0, -14), title: "AI" },
-  { mesh: createIsland(0xffcc00, 15, 10), title: "Postman" },
-  { mesh: createIsland(0x9933ff, -15, 10), title: "Pytest" },
-  { mesh: createModelIsland("/experience-island.glb", 0, 18, 0x00ffff, 13), title: "Experience", interactionRadius: 2.4 }
+  { mesh: createModelIsland("/playwright-island.glb", 12, -2, 0x3366ff, 7), title: "Playwright", interactionRadius: 3 },
+  { mesh: createModelIsland("/cypress-island.glb", -12, -2, 0x00ff66, 7), title: "Cypress", interactionRadius: 3 },
+  { mesh: createModelIsland("/AI-island.glb", 0, -14, 0xff3366, 7), title: "AI", interactionRadius: 3 },
+  { mesh: createModelIsland("/postman-island.glb", 15, 10, 0xffcc00, 7), title: "Postman", interactionRadius: 3 },
+  { mesh: createModelIsland("/pytest-island.glb", -15, 10, 0x9933ff, 7), title: "Pytest", interactionRadius: 3 },
+  { mesh: createModelIsland("/experience-island.glb", 0, 18, 0x00ffff, 13, "/experience-island-title.glb", true), title: "Experience", interactionRadius: 2.4 }
 ];
 
 
