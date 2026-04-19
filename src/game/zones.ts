@@ -509,11 +509,11 @@ export function updateZoneAnimations(delta: number) {
 // 🌍 ZONES
 // ======================
 const zones = [
-  { mesh: createModelIsland("/playwright-island.glb", 12, -2, 0x3366ff, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Playwright", world: "projects", interactionRadius: 3.4 },
-  { mesh: createModelIsland("/cypress-island.glb", -12, -2, 0x00ff66, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Cypress", world: "projects", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/playwright-island.glb", 5, -1, 0x3366ff, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Playwright", world: "projects", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/cypress-island.glb", -5, -1, 0x00ff66, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Cypress", world: "projects", interactionRadius: 3.4 },
   { mesh: createModelIsland("/AI-island.glb", 0, -14, 0xff3366, 7, aiWorld, "ai", undefined, false, 2.55), title: "AI", world: "ai", interactionRadius: 3.4 },
-  { mesh: createModelIsland("/postman-island.glb", 15, 10, 0xffcc00, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Postman", world: "projects", interactionRadius: 3.4 },
-  { mesh: createModelIsland("/pytest-island.glb", -15, 10, 0x9933ff, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Pytest", world: "projects", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/postman-island.glb", 5, 7, 0xffcc00, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Postman", world: "projects", interactionRadius: 3.4 },
+  { mesh: createModelIsland("/pytest-island.glb", -5, 7, 0x9933ff, 7, projectsWorld, "projects", undefined, false, 2.55), title: "Pytest", world: "projects", interactionRadius: 3.4 },
   { mesh: createModelIsland("/experience-island.glb", 0, 18, 0x00ffff, 13, experienceWorld, "experience", "/experience-island-title.glb", true), title: "Experience", world: "experience", interactionRadius: 2.4 }
 ];
 
