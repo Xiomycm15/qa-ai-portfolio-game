@@ -23,8 +23,8 @@ import { updateIntroWorld } from './game/introWorld';
 const intro = document.createElement("div");
 
 intro.innerHTML = `
-<h1>QA Mind World 🎮</h1>
-<p>Explore islands and collect treasures 💎</p>
+<h1 style="margin:0 0 8px;font-size:34px;">QA Jeimmy's Mind World 🎮</h1>
+<p style="margin:0 0 14px;">Explore islands, collect treasures 💎 and complete missions</p>
 <div style="display:grid;gap:8px;">
   <button id="experienceStartBtn">Experience Island</button>
   <button id="projectsStartBtn">Projects Island</button>
@@ -37,12 +37,11 @@ position:absolute;
 top:32px;
 left:50%;
 transform:translateX(-50%);
-background:black;
 color:white;
-padding:20px;
 z-index:1000;
 text-align:center;
 min-width:260px;
+text-shadow:0 2px 8px rgba(0,0,0,0.8);
 `;
 
 document.body.appendChild(intro);
@@ -94,6 +93,22 @@ function startWorld(world: GameWorldId) {
 document.getElementById("experienceStartBtn")!.onclick = () => startWorld("experience");
 document.getElementById("projectsStartBtn")!.onclick = () => startWorld("projects");
 document.getElementById("aiStartBtn")!.onclick = () => startWorld("ai");
+
+["experienceStartBtn", "projectsStartBtn", "aiStartBtn"].forEach((buttonId) => {
+  const button = document.getElementById(buttonId);
+  if (!button) return;
+
+  button.style.cssText = `
+    border:1px solid rgba(255,255,255,0.65);
+    background:rgba(86,35,150,0.52);
+    color:white;
+    padding:9px 14px;
+    cursor:pointer;
+    font-weight:bold;
+    text-shadow:none;
+    border-radius:6px;
+  `;
+});
 
 worldMenuButton.onclick = () => {
   intro.style.display = "block";

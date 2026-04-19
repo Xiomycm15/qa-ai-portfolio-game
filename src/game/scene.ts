@@ -3,6 +3,9 @@ import * as THREE from 'three';
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x7b2cbf);
 
+const skyTexture = new THREE.TextureLoader().load('/purple-cloudy-sky.avif');
+skyTexture.colorSpace = THREE.SRGBColorSpace;
+
 export const introWorld = new THREE.Group();
 export const gameWorld = new THREE.Group();
 export const experienceWorld = new THREE.Group();
@@ -90,6 +93,12 @@ scene.add(light);
 
 scene.add(new THREE.AmbientLight(0xffffff,0.5));
 
+introWorld.add(new THREE.HemisphereLight(0xffffff, 0x4b148c, 1.8));
+
+const introKeyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+introKeyLight.position.set(0, 8, 6);
+introWorld.add(introKeyLight);
+
 const introFloor = new THREE.Mesh(
   new THREE.PlaneGeometry(80, 80),
   new THREE.MeshStandardMaterial({ color: 0x4b148c, roughness: 0.7 })
@@ -108,7 +117,7 @@ gameWorld.add(ocean);
 // cielo
 scene.add(new THREE.Mesh(
   new THREE.SphereGeometry(100,32,32),
-  new THREE.MeshBasicMaterial({color:0x7b2cbf, side:THREE.BackSide})
+  new THREE.MeshBasicMaterial({map:skyTexture, color:0xffffff, side:THREE.BackSide})
 ));
 
 // estrellas
